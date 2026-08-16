@@ -1,0 +1,128 @@
+/* ==========================================================================
+   HUST GRADUATION INVITATION - ANIMATIONS & TRANSITIONS
+   ========================================================================== */
+
+/* Fade & Slide In Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scroll reveal utility */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delay classes */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+
+/* Pulse Glow Effect for buttons & important badges */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(212, 175, 55, 0);
+  }
+}
+
+.pulse-gold {
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Equalizer Bars for Audio Player */
+.equalizer-icon {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  width: 14px;
+}
+
+.equalizer-bar {
+  width: 2.5px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: equalizerBounce 0.8s ease-in-out infinite alternate;
+}
+
+.equalizer-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.equalizer-bar:nth-child(2) { height: 90%; animation-delay: 0.3s; }
+.equalizer-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+
+@keyframes equalizerBounce {
+  0% { height: 20%; }
+  100% { height: 100%; }
+}
+
+/* Confetti Canvas Container */
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+/* Floating Elements */
+.float-subtle {
+  animation: floatSubtle 4s ease-in-out infinite;
+}
+
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Graduation Cap Flip Icon */
+@keyframes capBob {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+.cap-icon-anim {
+  display: inline-block;
+  animation: capBob 3s ease-in-out infinite;
+}
