@@ -1,6 +1,7 @@
 /**
  * HUST Graduation Invitation - Guestbook & Wishes System
  * Powered by Firebase Firestore
+ * Reactions only — one reaction per user per wish (tracked via localStorage)
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -14,11 +15,10 @@ import {
   serverTimestamp, 
   doc, 
   updateDoc, 
-  increment,
-  arrayUnion
+  increment
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Firebase Configuration provided by user
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBQ_C6FQOKy8et_04VR2ugaibp-ibFYZWs",
   authDomain: "graduate-web-hhth.firebaseapp.com",
@@ -29,7 +29,6 @@ const firebaseConfig = {
   measurementId: "G-LM5C3JXS4N"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const wishesCollection = collection(db, "wishes");
@@ -43,16 +42,33 @@ const wishesCountEl = document.getElementById('wishesCount');
 const filterSelectEl = document.getElementById('wishesFilter');
 const emojiPills = document.querySelectorAll('.emoji-pill');
 
-// Emoji Pill selection for the main form
-if (emojiPills.length > 0) {
-  emojiPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      emojiPills.forEach(p => p.classList.remove('selected'));
-      pill.classList.add('selected');
-      selectedEmoji = pill.getAttribute('data-emoji') || '🎓';
-    });
-  });
+// ─── LocalStorage helpers for "one reaction per wish" ────────────────────────
+
+const LS_KEY = 'hust_reactions'; // { wishId: 'emoji' }
+
+function getMyReactions() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  } catch { return {}; }
 }
+
+function saveMyReaction(wishId, emoji) {
+  const map = getMyReactions();
+  map[wishId] = emoji;
+  localStorage.setItem(LS_KEY, JSON.stringify(map));
+}
+
+function removeMyReaction(wishId) {
+  const map = getMyReactions();
+  delete map[wishId];
+  localStorage.setItem(LS_KEY, JSON.stringify(map));
+}
+
+function getMyReactionFor(wishId) {
+  return getMyReactions()[wishId] || null;
+}
+
+// ─── Utility Functions ────────────────────────────────────────────────────────
 
 function getInitials(name) {
   if (!name) return 'H';
@@ -73,13 +89,8 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-function formatTime(timestamp) {
-  if (!timestamp) return "Đang gửi...";
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
+// ─── Render Wishes ────────────────────────────────────────────────────────────
 
-// Render Wishes
 function renderWishes(filterValue = 'all') {
   if (!wishesListEl) return;
 
@@ -103,9 +114,9 @@ function renderWishes(filterValue = 'all') {
 
   wishesListEl.innerHTML = filtered.map(wish => {
     const reactions = wish.reactions || {};
-    const comments = wish.comments || [];
-    
-    // Calculate total reactions and distinct emojis for the summary
+    const myReaction = getMyReactionFor(wish.id);
+
+    // Tổng hợp reactions
     let totalReactions = 0;
     let distinctEmojis = [];
     Object.entries(reactions).forEach(([emoji, count]) => {
@@ -115,26 +126,17 @@ function renderWishes(filterValue = 'all') {
       }
     });
 
-    const reactionSummaryHtml = totalReactions > 0 
+    const reactionSummaryHtml = totalReactions > 0
       ? `<div class="reaction-summary">
            <span class="reaction-summary-icons">${distinctEmojis.join('')}</span>
            <span class="reaction-summary-count">${totalReactions}</span>
          </div>`
       : '';
 
-    // Build comments HTML (Social style bubble)
-    const commentsHtml = comments.map(c => `
-      <div class="social-comment-item">
-        <div class="social-comment-avatar">${getInitials(c.name)}</div>
-        <div class="social-comment-content">
-          <div class="social-comment-bubble">
-            <div class="social-comment-author">${escapeHtml(c.name)}</div>
-            <div class="social-comment-text">${escapeHtml(c.text)}</div>
-          </div>
-          <div class="social-comment-time">${formatTime(c.time)}</div>
-        </div>
-      </div>
-    `).join('');
+    // Label cho nút Thích theo reaction đã chọn
+    const likeLabel = myReaction
+      ? `${myReaction} Đã thả`
+      : `👍 Thả cảm xúc`;
 
     return `
     <div class="wish-card" data-id="${wish.id}">
@@ -152,144 +154,172 @@ function renderWishes(filterValue = 'all') {
       
       ${reactionSummaryHtml}
 
-      <!-- Reactions & Comment Toggle (Social Style) -->
+      <!-- Reaction Bar -->
       <div class="social-actions-bar">
-        <div class="social-reaction-container">
-          <button class="social-action-btn">
-            👍 Thích
+        <div class="social-reaction-container${myReaction ? ' reacted' : ''}">
+          <button class="social-action-btn${myReaction ? ' active' : ''}" title="${myReaction ? 'Bạn đã thả ' + myReaction + '. Di chuột để đổi.' : 'Thả cảm xúc'}">
+            ${likeLabel}
           </button>
-          <!-- Hover Tooltip for Reactions -->
+          ${!myReaction ? `
+          <!-- Hover Tooltip for Reactions (chỉ hiện khi chưa thả) -->
           <div class="social-reaction-tooltip">
-            <button class="reaction-btn" data-id="${wish.id}" data-type="👍">👍</button>
-            <button class="reaction-btn" data-id="${wish.id}" data-type="❤️">❤️</button>
-            <button class="reaction-btn" data-id="${wish.id}" data-type="😂">😂</button>
-            <button class="reaction-btn" data-id="${wish.id}" data-type="😮">😮</button>
-            <button class="reaction-btn" data-id="${wish.id}" data-type="😢">😢</button>
-            <button class="reaction-btn" data-id="${wish.id}" data-type="🎉">🎉</button>
-          </div>
-        </div>
-        
-        <button class="social-action-btn comment-toggle-btn" data-id="${wish.id}">
-          💬 Bình luận
-        </button>
-      </div>
-
-      <!-- Comments Section -->
-      <div class="comments-section" id="comments-${wish.id}">
-        <div class="comment-list">
-          ${commentsHtml}
-        </div>
-        <div class="social-comment-form">
-          <div class="social-comment-avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">Bạn</div>
-          <div class="social-comment-inputs">
-            <input type="text" id="c-name-${wish.id}" placeholder="Tên bạn..." required class="social-name-input">
-            <div class="social-textarea-wrapper">
-              <textarea id="c-text-${wish.id}" rows="1" placeholder="Viết bình luận..." required class="social-text-input"></textarea>
-              <button class="comment-submit-btn" data-id="${wish.id}" title="Gửi">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="👍" title="Thích">👍</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="❤️" title="Yêu thích">❤️</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="😂" title="Haha">😂</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="😮" title="Wow">😮</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="🥲" title="Xúc động">🥲</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="🎉" title="Chúc mừng">🎉</button>
+          </div>` : `
+          <!-- Tooltip đổi cảm xúc khi đã thả -->
+          <div class="social-reaction-tooltip change-reaction-tooltip">
+            <span class="change-label">Đổi cảm xúc:</span>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="👍" title="Thích">👍</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="❤️" title="Yêu thích">❤️</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="😂" title="Haha">😂</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="😮" title="Wow">😮</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="🥲" title="Xúc động">🥲</button>
+            <button class="reaction-btn" data-id="${wish.id}" data-type="🎉" title="Chúc mừng">🎉</button>
+            <button class="remove-reaction-btn" data-id="${wish.id}" title="Bỏ cảm xúc">✕</button>
+          </div>`}
         </div>
       </div>
     </div>
   `}).join('');
 }
 
-// Event Delegation for Reactions and Comments
+// ─── Event Delegation ─────────────────────────────────────────────────────────
+
+// Touch support: toggle tooltip on tap for mobile
+function isTouchDevice() {
+  return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+}
+
+// Close all open tooltips
+function closeAllTooltips() {
+  document.querySelectorAll('.social-reaction-tooltip.touch-open').forEach(t => {
+    t.classList.remove('touch-open');
+  });
+}
+
+// Add CSS for touch-open class
+const style = document.createElement('style');
+style.textContent = `
+  @media (hover: none), (pointer: coarse) {
+    .social-reaction-tooltip { pointer-events: none; }
+    .social-reaction-tooltip.touch-open {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateX(-50%) translateY(0) !important;
+      pointer-events: all;
+    }
+  }
+`;
+document.head.appendChild(style);
+
 if (wishesListEl) {
+  // Close tooltips when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.social-reaction-container')) {
+      closeAllTooltips();
+    }
+  });
+
   wishesListEl.addEventListener('click', async (e) => {
-    // Handle Reaction Click
+
+    // On touch devices: toggle tooltip when tapping the main action button
+    if (isTouchDevice()) {
+      const mainBtn = e.target.closest('.social-action-btn');
+      if (mainBtn && mainBtn.closest('.social-reaction-container')) {
+        e.stopPropagation();
+        const container = mainBtn.closest('.social-reaction-container');
+        const tooltip = container.querySelector('.social-reaction-tooltip');
+        if (tooltip) {
+          const isOpen = tooltip.classList.contains('touch-open');
+          closeAllTooltips();
+          if (!isOpen) tooltip.classList.add('touch-open');
+          return;
+        }
+      }
+    }
+
+    // Bỏ cảm xúc
+    const removeBtn = e.target.closest('.remove-reaction-btn');
+    if (removeBtn) {
+      const wishId = removeBtn.getAttribute('data-id');
+      const myReaction = getMyReactionFor(wishId);
+      if (!myReaction) return;
+
+      try {
+        const wishRef = doc(db, 'wishes', wishId);
+        await updateDoc(wishRef, {
+          [`reactions.${myReaction}`]: increment(-1)
+        });
+        removeMyReaction(wishId);
+        // Re-render locally without waiting for snapshot
+        renderWishes(filterSelectEl ? filterSelectEl.value : 'all');
+      } catch (err) {
+        console.error("Error removing reaction:", err);
+      }
+      return;
+    }
+
+    // Thả / đổi cảm xúc
     const reactBtn = e.target.closest('.reaction-btn');
     if (reactBtn) {
       const wishId = reactBtn.getAttribute('data-id');
-      const reactionType = reactBtn.getAttribute('data-type');
-      
-      try {
-        const wishRef = doc(db, 'wishes', wishId);
-        await updateDoc(wishRef, {
-          [`reactions.${reactionType}`]: increment(1)
-        });
-        
-        // Add local active class just for feedback
-        reactBtn.classList.add('active');
-        setTimeout(() => reactBtn.classList.remove('active'), 1000);
-      } catch (err) {
-        console.error("Error updating reaction: ", err);
-      }
-      return;
-    }
+      const newReaction = reactBtn.getAttribute('data-type');
+      const prevReaction = getMyReactionFor(wishId);
 
-    // Handle Comment Toggle
-    const toggleBtn = e.target.closest('.comment-toggle-btn');
-    if (toggleBtn) {
-      const wishId = toggleBtn.getAttribute('data-id');
-      const commentSection = document.getElementById(`comments-${wishId}`);
-      if (commentSection) {
-        commentSection.classList.toggle('show');
-      }
-      return;
-    }
-
-    // Handle Comment Submit
-    const submitBtn = e.target.closest('.comment-submit-btn');
-    if (submitBtn) {
-      const wishId = submitBtn.getAttribute('data-id');
-      const nameInput = document.getElementById(`c-name-${wishId}`);
-      const textInput = document.getElementById(`c-text-${wishId}`);
-      
-      const name = nameInput.value.trim();
-      const text = textInput.value.trim();
-      
-      if (!name || !text) {
-        alert('Vui lòng nhập tên và nội dung bình luận.');
-        return;
-      }
-      
-      const newComment = {
-        name: name,
-        text: text,
-        time: new Date().toISOString()
-      };
-      
-      submitBtn.innerText = 'Đang gửi...';
-      submitBtn.disabled = true;
+      if (prevReaction === newReaction) return; // Không thay đổi gì
 
       try {
         const wishRef = doc(db, 'wishes', wishId);
-        await updateDoc(wishRef, {
-          comments: arrayUnion(newComment)
-        });
-        nameInput.value = '';
-        textInput.value = '';
+        const updates = {
+          [`reactions.${newReaction}`]: increment(1)
+        };
+        // Giảm reaction cũ nếu có
+        if (prevReaction) {
+          updates[`reactions.${prevReaction}`] = increment(-1);
+        }
+        await updateDoc(wishRef, updates);
+        saveMyReaction(wishId, newReaction);
+        renderWishes(filterSelectEl ? filterSelectEl.value : 'all');
       } catch (err) {
-        console.error("Error adding comment: ", err);
-        alert('Lỗi khi gửi bình luận. Vui lòng thử lại.');
-      } finally {
-        submitBtn.innerText = 'Gửi bình luận';
-        submitBtn.disabled = false;
+        console.error("Error updating reaction:", err);
       }
       return;
     }
   });
 }
 
-// Real-time listener for wishes
+// ─── Real-time Firestore Listener ─────────────────────────────────────────────
+
 const q = query(wishesCollection, orderBy("timestamp", "desc"));
 onSnapshot(q, (snapshot) => {
   const wishes = [];
-  snapshot.forEach((doc) => {
-    wishes.push({ id: doc.id, ...doc.data() });
+  snapshot.forEach((docSnap) => {
+    wishes.push({ id: docSnap.id, ...docSnap.data() });
   });
   currentWishes = wishes;
   renderWishes(filterSelectEl ? filterSelectEl.value : 'all');
 }, (error) => {
-  console.error("Error listening to wishes: ", error);
+  console.error("Error listening to wishes:", error);
 });
 
-// Handle Form Submit
+// ─── Emoji Pill Selection (Form) ──────────────────────────────────────────────
+
+if (emojiPills.length > 0) {
+  emojiPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      emojiPills.forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      selectedEmoji = pill.getAttribute('data-emoji') || '🎓';
+    });
+  });
+}
+
+// ─── Handle Form Submit ───────────────────────────────────────────────────────
+
 if (formEl) {
   formEl.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -314,25 +344,23 @@ if (formEl) {
 
     try {
       await addDoc(wishesCollection, {
-        name: name,
-        relation: relation,
-        message: message,
+        name,
+        relation,
+        message,
         emoji: selectedEmoji,
         timestamp: serverTimestamp(),
         reactions: {
           '❤️': 0,
           '👍': 0,
+          '😂': 0,
+          '😮': 0,
+          '🥲': 0,
           '🎉': 0
-        },
-        comments: []
+        }
       });
 
-      // Trigger Confetti
-      if (window.triggerConfetti) {
-        window.triggerConfetti();
-      }
+      if (window.triggerConfetti) window.triggerConfetti();
 
-      // Reset form
       formEl.reset();
       selectedEmoji = '🎓';
       if (emojiPills.length > 0) {
@@ -342,7 +370,6 @@ if (formEl) {
         });
       }
 
-      // Success notification
       submitBtn.innerHTML = '✨ Đã gửi lời chúc thành công!';
       submitBtn.style.background = 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)';
       setTimeout(() => {
@@ -350,9 +377,9 @@ if (formEl) {
         submitBtn.style.background = '';
         submitBtn.disabled = false;
       }, 3000);
-      
+
     } catch (error) {
-      console.error("Error adding document: ", error);
+      console.error("Error adding document:", error);
       alert('Đã xảy ra lỗi khi gửi lời chúc. Vui lòng thử lại sau.');
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;
@@ -360,7 +387,8 @@ if (formEl) {
   });
 }
 
-// Filter change event
+// ─── Filter change event ──────────────────────────────────────────────────────
+
 if (filterSelectEl) {
   filterSelectEl.addEventListener('change', function () {
     renderWishes(this.value);
