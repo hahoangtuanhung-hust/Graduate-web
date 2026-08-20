@@ -85,13 +85,16 @@ html {
 body {
   font-family: var(--font-sans);
   color: var(--color-text-main);
-  background: var(--color-bg-main);
+  background-color: #EBF4FC;
   background-image: 
-    radial-gradient(at 5% 0%, rgba(13, 148, 136, 0.12) 0px, transparent 45%),
-    radial-gradient(at 95% 5%, rgba(29, 78, 216, 0.12) 0px, transparent 45%),
-    radial-gradient(at 50% 50%, rgba(224, 242, 254, 0.5) 0px, transparent 70%),
-    radial-gradient(at 80% 95%, rgba(11, 37, 69, 0.08) 0px, transparent 50%);
+    radial-gradient(circle at 10% 15%, rgba(45, 212, 191, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(37, 99, 235, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 50% 45%, rgba(147, 197, 253, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 15% 75%, rgba(20, 184, 166, 0.2) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(19, 64, 116, 0.18) 0%, transparent 50%),
+    linear-gradient(145deg, #E6F4FE 0%, #E8FAF8 35%, #EFF6FF 70%, #E0F2FE 100%);
   background-attachment: fixed;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   min-height: 100vh;
   line-height: 1.65;
   overflow-x: hidden;

@@ -474,6 +474,282 @@
   margin-bottom: 1.25rem;
 }
 
+.comment-form input,
+.comment-form textarea {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: rgba(255,255,255,0.9);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =========================================================================
+   WISH CARD - INTERACTION BAR & COMMENTS
+   ========================================================================= */
+
+/* Reaction Summary Row (e.g. ❤️🔥 16) */
+.reaction-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.reaction-summary-icons {
+  display: inline-flex;
+  gap: -3px;
+  font-size: 0.95rem;
+}
+.reaction-summary-count {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Action buttons divider */
+.social-actions-bar {
+  display: flex;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  margin-top: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+/* Each action button (Thích / Bình luận) */
+.social-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.social-action-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--color-primary-800);
+}
+.social-action-btn.active {
+  color: var(--color-primary-700);
+}
+
+/* Hover Tooltip for Reactions */
+.social-reaction-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+}
+.social-reaction-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: white;
+  border-radius: 30px;
+  padding: 0.35rem 0.6rem;
+  display: flex;
+  gap: 0.25rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+  z-index: 10;
+  white-space: nowrap;
+}
+.social-reaction-container:hover .social-reaction-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.social-reaction-tooltip .reaction-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.1rem;
+  line-height: 1;
+  transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: inline-flex;
+}
+.social-reaction-tooltip .reaction-btn:hover {
+  transform: scale(1.35) translateY(-4px);
+}
+
+/* =========================================================================
+   COMMENTS SECTION
+   ========================================================================= */
+.comments-section {
+  display: none;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.comments-section.show {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Scrollable comment list */
+.comment-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0.25rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+.comment-list::-webkit-scrollbar {
+  width: 4px;
+}
+.comment-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.comment-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 4px;
+}
+.comment-list:empty {
+  display: none;
+}
+
+/* Single comment item */
+.social-comment-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.social-comment-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary-600);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.social-comment-content {
+  flex: 1;
+  min-width: 0;
+}
+.social-comment-bubble {
+  background: rgba(0,0,0,0.05);
+  padding: 0.4rem 0.7rem;
+  border-radius: 14px;
+  display: inline-block;
+  max-width: 100%;
+}
+.social-comment-author {
+  font-weight: 700;
+  color: var(--color-primary-900);
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 1px;
+}
+.social-comment-text {
+  font-size: 0.88rem;
+  color: var(--color-text-body);
+  word-break: break-word;
+  display: block;
+}
+.social-comment-time {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-left: 0.5rem;
+  margin-top: 0.15rem;
+  display: block;
+}
+
+/* =========================================================================
+   COMMENT INPUT FORM
+   ========================================================================= */
+.social-comment-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+.social-comment-inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.social-name-input {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.03);
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.social-textarea-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.social-text-input {
+  width: 100%;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 0.45rem 2.4rem 0.45rem 0.8rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.03);
+  resize: none;
+  font-family: inherit;
+  line-height: 1.4;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.social-text-input:focus, .social-name-input:focus {
+  outline: none;
+  background: white;
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px rgba(99,145,200,0.1);
+}
+.social-textarea-wrapper .comment-submit-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-primary-600);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.social-textarea-wrapper .comment-submit-btn:hover {
+  background: rgba(0,0,0,0.06);
+  color: var(--color-primary-800);
+}
+
 .hero-title {
   font-size: 2.75rem;
   color: var(--color-primary-900);
