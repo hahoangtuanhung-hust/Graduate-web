@@ -8,14 +8,15 @@
   const dot = document.getElementById('cursorGlassDot');
   if (!cursor) return;
 
-  const isCoarseOrReduced = window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches;
-  if (isCoarseOrReduced) return;
+  // On touch-only devices, keep native cursor
+  const onlyCoarse = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+  if (onlyCoarse) return;
 
-  // Immediately enable custom cursor on fine pointer devices
-  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    document.documentElement.classList.add('has-cursor-glass');
-  }
+  // Don't activate on reduced-motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+  // Class is added lazily on first pointermove so we know the user actually
+  // has a mouse (handles hybrid touch+mouse laptops correctly)
   const interactiveSelector = 'a, button, input, textarea, select, [role="button"], [data-cursor-hover], .emoji-pill, .reaction-btn, .social-action-btn, .envelope-wrapper, .floating-accent-badge, .btn';
   
   let targetX = -100;

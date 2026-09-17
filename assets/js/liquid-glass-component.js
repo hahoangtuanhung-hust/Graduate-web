@@ -395,12 +395,19 @@ void main() {
       });
     }
 
-    function updateUniforms() {
+    // Cache element rects so we only read the DOM when layout changes
+    let panelCache = [];
+
+    function readAllPanels() {
+      panelCache = elements.map((el) => readPanel(el));
+    }
+
+    function applyUniforms() {
       updateSize();
       const pixelRatio = renderer.getPixelRatio();
-      materials.forEach((material, index) => {
-        const panel = readPanel(elements[index]);
-        const uniforms = material.uniforms;
+      panelCache.forEach((panel, index) => {
+        if (!materials[index]) return;
+        const uniforms = materials[index].uniforms;
         uniforms.uGlassCenter.value.set(panel.center.x * pixelRatio, panel.center.y * pixelRatio);
         uniforms.uGlassSize.value.set(panel.size.x * pixelRatio, panel.size.y * pixelRatio);
         uniforms.uClipRect.value.set(
@@ -422,66 +429,61 @@ void main() {
       });
     }
 
-    // ── Continuous RAF loop ────────────────────────────────────────────────
-    // Re-read getBoundingClientRect every frame so glass positions are always
-    // pixel-perfect regardless of scroll velocity or inertia.
-    let loopRunning = false;
-    let dirty = true; // flag: re-render even when layout hasn't changed
+    // ── Smart render loop ─────────────────────────────────────────────────
+    // Uses a dirty flag so we only call getBoundingClientRect when scroll/resize
+    // actually occurs. This prevents continuous layout reflow every RAF frame
+    // while still staying pixel-perfect when the page moves.
+    let dirty = true;
+
+    function markDirty() { dirty = true; }
 
     function loop() {
-      syncElements();
-      updateUniforms();
+      if (syncElements()) {
+        readAllPanels();
+        dirty = false;
+      } else if (dirty) {
+        readAllPanels();
+        dirty = false;
+      }
+      applyUniforms();
       renderer.render(scene, camera);
-      dirty = false;
       renderId = requestAnimationFrame(loop);
     }
 
-    function scheduleRender() {
-      dirty = true;
-      if (!loopRunning) {
-        loopRunning = true;
-        renderId = requestAnimationFrame(loop);
-      }
-    }
+    function scheduleRender() { dirty = true; }
 
     function setTheme(theme) {
       const nextTheme = normalizeTheme(theme);
-      if (nextTheme === currentTheme) {
-        scheduleRender();
-        return;
-      }
-
       const previousTexture = backdropTexture;
       currentTheme = nextTheme;
       backdropTexture = createGradientTexture(currentTheme);
       bgAspect = 1600 / 1000;
       if (previousTexture && previousTexture !== fallbackTexture) previousTexture.dispose();
-      scheduleRender();
+      dirty = true;
     }
 
-    window.addEventListener('resize', updateSize, { passive: true });
+    // Mark dirty on any layout-changing event
+    window.addEventListener('scroll', markDirty, { passive: true });
+    document.addEventListener('scroll', markDirty, { passive: true, capture: true });
+    window.addEventListener('resize', () => { updateSize(); dirty = true; }, { passive: true });
+
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        // Pause loop when tab is hidden to save GPU
-        if (renderId) {
-          cancelAnimationFrame(renderId);
-          renderId = 0;
-          loopRunning = false;
-        }
+        if (renderId) { cancelAnimationFrame(renderId); renderId = 0; }
       } else {
-        loopRunning = false;
-        scheduleRender();
+        dirty = true;
+        renderId = requestAnimationFrame(loop);
       }
     });
 
     if ('ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(scheduleRender);
+      resizeObserver = new ResizeObserver(markDirty);
       elements.forEach((element) => resizeObserver.observe(element));
     }
 
     if ('MutationObserver' in window && document.body) {
       const mutationObserver = new MutationObserver(() => {
-        if (syncElements()) scheduleRender();
+        if (syncElements()) { readAllPanels(); dirty = false; }
       });
       mutationObserver.observe(document.body, {
         childList: true,
@@ -491,8 +493,9 @@ void main() {
       });
     }
 
-    // Kick off the continuous loop immediately
-    loopRunning = true;
+    // Initial panel read + kick off loop
+    readAllPanels();
+    dirty = false;
     renderId = requestAnimationFrame(loop);
 
     return {

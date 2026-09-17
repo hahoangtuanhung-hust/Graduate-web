@@ -262,19 +262,22 @@ img { display: block; max-width: 100%; height: auto; }
 
 .liquid-glass-fallback #glassCanvas { display: none; }
 
-/* =========================================================================
-   CUSTOM LIQUID GLASS POINTER CURSOR
-   ========================================================================= */
-@media (hover: hover) and (pointer: fine) {
+/* Cursor hidden only when JS confirms a fine-pointer device via class */
+html.has-cursor-glass,
+html.has-cursor-glass *:not(input):not(textarea):not([contenteditable="true"]) {
+  cursor: none !important;
+}
+
+html.has-cursor-glass input,
+html.has-cursor-glass textarea,
+html.has-cursor-glass [contenteditable="true"] {
+  cursor: text !important;
+}
+
+@media (pointer: coarse) {
   html.has-cursor-glass,
   html.has-cursor-glass * {
-    cursor: none !important;
-  }
-
-  html.has-cursor-glass input,
-  html.has-cursor-glass textarea,
-  html.has-cursor-glass [contenteditable="true"] {
-    cursor: text !important;
+    cursor: auto !important;
   }
 }
 
