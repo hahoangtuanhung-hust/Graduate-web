@@ -1,87 +1,99 @@
 /**
- * Small liquid-glass pointer lens for fine pointer devices.
- * It stays separate from the full-screen Three.js glass renderer so it can
- * follow the pointer without triggering layout or repainting every surface.
+ * Liquid Glass Pointer Cursor (Dual Element: Pinpoint Dot + Inertial Glass Halo)
  */
 (function () {
   'use strict';
 
   const cursor = document.getElementById('cursorGlass');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dot = document.getElementById('cursorGlassDot');
+  if (!cursor) return;
 
-  if (!cursor || reducedMotion) return;
+  const isCoarseOrReduced = window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches;
+  if (isCoarseOrReduced) return;
 
-  const interactiveSelector = 'a, button, input, textarea, select, [role="button"], [data-cursor-hover]';
-  const easing = 0.2;
+  // Immediately enable custom cursor on fine pointer devices
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.documentElement.classList.add('has-cursor-glass');
+  }
+
+  const interactiveSelector = 'a, button, input, textarea, select, [role="button"], [data-cursor-hover], .emoji-pill, .reaction-btn, .social-action-btn, .envelope-wrapper, .floating-accent-badge, .btn';
+  
   let targetX = -100;
   let targetY = -100;
-  let currentX = targetX;
-  let currentY = targetY;
-  let currentScale = 0.8;
-  let targetScale = 0.8;
-  let frameId = 0;
+  let currentX = -100;
+  let currentY = -100;
+  let isHovered = false;
   let isVisible = false;
-
-  function scheduleRender() {
-    if (!frameId) frameId = requestAnimationFrame(render);
-  }
+  let frameId = 0;
 
   function render() {
     frameId = 0;
-    currentX += (targetX - currentX) * easing;
-    currentY += (targetY - currentY) * easing;
-    currentScale += (targetScale - currentScale) * easing;
-    cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${currentScale})`;
+    // Smooth trailing inertia for outer liquid glass halo
+    currentX += (targetX - currentX) * 0.22;
+    currentY += (targetY - currentY) * 0.22;
 
-    if (
-      Math.abs(targetX - currentX) > 0.1 ||
-      Math.abs(targetY - currentY) > 0.1 ||
-      Math.abs(targetScale - currentScale) > 0.01
-    ) {
-      scheduleRender();
+    cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+    // Instant pinpoint tracking for center dot
+    if (dot) {
+      dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+    }
+
+    if (Math.abs(targetX - currentX) > 0.08 || Math.abs(targetY - currentY) > 0.08) {
+      frameId = requestAnimationFrame(render);
     }
   }
 
-  function updateHoverState(x, y) {
-    const element = document.elementFromPoint(x, y);
-    const isInteractive = element instanceof Element && Boolean(element.closest(interactiveSelector));
-    targetScale = isInteractive ? 1.45 : 0.8;
-    cursor.classList.toggle('is-hover', isInteractive);
-  }
-
-  function handlePointerMove(event) {
-    if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+  function handlePointerMove(e) {
+    if (e.pointerType && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
 
     if (!document.documentElement.classList.contains('has-cursor-glass')) {
       document.documentElement.classList.add('has-cursor-glass');
     }
 
-    targetX = event.clientX;
-    targetY = event.clientY;
-    updateHoverState(targetX, targetY);
+    targetX = e.clientX;
+    targetY = e.clientY;
 
     if (!isVisible) {
       currentX = targetX;
       currentY = targetY;
       isVisible = true;
       cursor.classList.add('is-visible');
+      if (dot) dot.classList.add('is-visible');
     }
 
-    scheduleRender();
+    // Interactive Hover detection
+    const el = document.elementFromPoint(targetX, targetY);
+    const interactive = el instanceof Element && Boolean(el.closest(interactiveSelector));
+    if (interactive !== isHovered) {
+      isHovered = interactive;
+      cursor.classList.toggle('is-hover', isHovered);
+      if (dot) dot.classList.toggle('is-hover', isHovered);
+    }
+
+    if (!frameId) {
+      frameId = requestAnimationFrame(render);
+    }
   }
 
-  function hideCursor() {
+  function handleMouseDown() {
+    cursor.classList.add('is-active');
+    if (dot) dot.classList.add('is-active');
+  }
+
+  function handleMouseUp() {
+    cursor.classList.remove('is-active');
+    if (dot) dot.classList.remove('is-active');
+  }
+
+  function handleMouseLeave() {
     isVisible = false;
-    cursor.classList.remove('is-visible', 'is-hover');
-    targetScale = 0.8;
+    cursor.classList.remove('is-visible', 'is-hover', 'is-active');
+    if (dot) dot.classList.remove('is-visible', 'is-hover', 'is-active');
   }
 
   window.addEventListener('pointermove', handlePointerMove, { passive: true });
-  if (!('PointerEvent' in window)) {
-    window.addEventListener('mousemove', handlePointerMove, { passive: true });
-  }
-  window.addEventListener('blur', hideCursor, { passive: true });
-  document.addEventListener('pointerout', (event) => {
-    if (!event.relatedTarget) hideCursor();
-  }, { passive: true });
+  window.addEventListener('mousedown', handleMouseDown, { passive: true });
+  window.addEventListener('mouseup', handleMouseUp, { passive: true });
+  document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 })();

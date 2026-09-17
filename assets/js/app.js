@@ -75,21 +75,24 @@
 
   const confettiColors = ['#f2c14e', '#b4232f', '#159d8e', '#6bd4c6', '#ffffff', '#ffe4a3'];
 
-  function triggerConfetti() {
+  function triggerConfetti(options = {}) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const originY = options.origin && typeof options.origin.y === 'number' ? options.origin.y : 0.65;
+    const originX = options.origin && typeof options.origin.x === 'number' ? options.origin.x : 0.5;
+    const particleCount = options.count || options.particleCount || 160;
 
     // 1. If library canvas-confetti is loaded, fire realistic celebration bursts
     if (typeof window.confetti === 'function') {
-      const count = 160;
       const defaults = {
-        origin: { y: 0.65 },
+        origin: { x: originX, y: originY },
         zIndex: 10005,
         colors: confettiColors
       };
 
       function fire(particleRatio, opts) {
         window.confetti(Object.assign({}, defaults, opts, {
-          particleCount: Math.floor(count * particleRatio)
+          particleCount: Math.floor(particleCount * particleRatio)
         }));
       }
 
@@ -99,42 +102,49 @@
       fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
       fire(0.1, { spread: 120, startVelocity: 45 });
 
-      // Side cannons for extra grand opening effect
-      setTimeout(() => {
-        window.confetti({
-          particleCount: 45,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.75 },
-          zIndex: 10005,
-          colors: ['#f2c14e', '#159d8e', '#6bd4c6']
-        });
-        window.confetti({
-          particleCount: 45,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.75 },
-          zIndex: 10005,
-          colors: ['#f2c14e', '#b4232f', '#ffe4a3']
-        });
-      }, 250);
+      if (options.sideCannons !== false) {
+        setTimeout(() => {
+          window.confetti({
+            particleCount: 45,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: Math.min(0.85, originY + 0.1) },
+            zIndex: 10005,
+            colors: ['#f2c14e', '#159d8e', '#6bd4c6']
+          });
+          window.confetti({
+            particleCount: 45,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: Math.min(0.85, originY + 0.1) },
+            zIndex: 10005,
+            colors: ['#f2c14e', '#b4232f', '#ffe4a3']
+          });
+        }, 220);
+      }
       return;
     }
 
-    // 2. Fallback canvas particle generator if external library is blocked
+    // 2. High-performance self-contained canvas particle fireworks
     if (!canvas || !ctx) return;
+    resizeCanvas();
     const newParticles = [];
-    for (let i = 0; i < 100; i++) {
+    const spawnX = canvas.width * originX;
+    const spawnY = canvas.height * originY;
+
+    for (let i = 0; i < particleCount; i++) {
+      const angle = Math.PI * 2 * Math.random();
+      const speed = Math.random() * 15 + 4;
       newParticles.push({
-        x: canvas.width / 2 + (Math.random() - 0.5) * 200,
-        y: canvas.height * 0.5 + (Math.random() - 0.5) * 100,
-        w: Math.random() * 10 + 6,
-        h: Math.random() * 6 + 4,
+        x: spawnX + (Math.random() - 0.5) * 40,
+        y: spawnY + (Math.random() - 0.5) * 40,
+        w: Math.random() * 12 + 6,
+        h: Math.random() * 8 + 4,
         color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-        vx: (Math.random() - 0.5) * 14,
-        vy: (Math.random() - 0.7) * 16,
+        vx: Math.cos(angle) * speed * 0.9,
+        vy: -Math.abs(Math.sin(angle) * speed * 1.3) - 3, // Shoot upward like fireworks
         rot: Math.random() * 360,
-        vRot: (Math.random() - 0.5) * 10,
+        vRot: (Math.random() - 0.5) * 12,
         opacity: 1
       });
     }

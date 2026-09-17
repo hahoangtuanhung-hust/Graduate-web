@@ -262,72 +262,97 @@ img { display: block; max-width: 100%; height: auto; }
 
 .liquid-glass-fallback #glassCanvas { display: none; }
 
+/* =========================================================================
+   CUSTOM LIQUID GLASS POINTER CURSOR
+   ========================================================================= */
+@media (hover: hover) and (pointer: fine) {
+  html.has-cursor-glass,
+  html.has-cursor-glass * {
+    cursor: none !important;
+  }
+
+  html.has-cursor-glass input,
+  html.has-cursor-glass textarea,
+  html.has-cursor-glass [contenteditable="true"] {
+    cursor: text !important;
+  }
+}
+
+/* Outer Liquid Glass Halo Ring (Smooth Inertial Follower) */
 #cursorGlass {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 100000;
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
-  border: 1px solid var(--cursor-glass-border);
+  z-index: 100001;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1.5px solid rgba(107, 212, 198, 0.75);
   border-radius: 50%;
-  background: var(--cursor-glass-fill);
-  box-shadow: var(--cursor-glass-shadow);
-  backdrop-filter: blur(6px) saturate(145%);
-  -webkit-backdrop-filter: blur(6px) saturate(145%);
+  background: rgba(21, 157, 142, 0.12);
+  box-shadow: 0 0 16px rgba(107, 212, 198, 0.35), inset 0 0 8px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px) saturate(150%);
+  -webkit-backdrop-filter: blur(4px) saturate(150%);
   opacity: 0;
   pointer-events: none;
-  transform: translate3d(-100px, -100px, 0) scale(0.8);
+  transform: translate3d(-100px, -100px, 0);
+  transition: opacity 0.2s ease, width 0.22s cubic-bezier(0.16, 1, 0.3, 1), height 0.22s cubic-bezier(0.16, 1, 0.3, 1), margin 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   will-change: transform, opacity;
 }
 
-#cursorGlass::before,
-#cursorGlass::after {
-  position: absolute;
-  content: '';
-  pointer-events: none;
-}
-
-#cursorGlass::before {
-  top: 3px;
-  left: 4px;
-  width: 7px;
-  height: 4px;
+/* Instant Pinpoint Center Dot (Direct Tracking) */
+#cursorGlassDot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100002;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
   border-radius: 50%;
-  background: var(--cursor-glass-highlight);
-  filter: blur(1px);
-  opacity: 0.75;
+  background: #6bd4c6;
+  box-shadow: 0 0 10px #6bd4c6, 0 0 3px #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-100px, -100px, 0);
+  transition: opacity 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform, opacity;
 }
 
-#cursorGlass::after {
-  inset: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: inherit;
+#cursorGlass.is-visible,
+#cursorGlassDot.is-visible {
+  opacity: 1;
 }
 
-#cursorGlass.is-visible { opacity: 0.86; }
+/* Hover State over links, buttons, interactive cards */
 #cursorGlass.is-hover {
-  border-color: var(--color-border-focus);
-  box-shadow: 0 8px 24px rgba(3, 12, 23, 0.38), inset 0 1px 0 var(--cursor-glass-highlight);
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border-color: rgba(242, 193, 78, 0.85);
+  background: rgba(242, 193, 78, 0.18);
+  box-shadow: 0 0 24px rgba(242, 193, 78, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
-html.has-cursor-glass,
-html.has-cursor-glass body,
-html.has-cursor-glass a,
-html.has-cursor-glass button,
-html.has-cursor-glass [role="button"] {
-  cursor: none;
+#cursorGlassDot.is-hover {
+  background: #f2c14e;
+  box-shadow: 0 0 12px #f2c14e, 0 0 5px #ffffff;
 }
 
-html.has-cursor-glass input,
-html.has-cursor-glass textarea,
-html.has-cursor-glass select {
-  cursor: text;
+/* Active Click State */
+#cursorGlass.is-active {
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  background: rgba(107, 212, 198, 0.35);
+  border-color: #ffffff;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #cursorGlass { display: none; }
+@media (pointer: coarse) or (prefers-reduced-motion: reduce) {
+  #cursorGlass,
+  #cursorGlassDot {
+    display: none !important;
+  }
 }
 
 .glass-card {

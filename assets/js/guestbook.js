@@ -509,7 +509,10 @@
 
       // 2. Bắn pháo giấy chúc mừng
       if (typeof window.triggerConfetti === 'function') {
-        window.triggerConfetti();
+        window.triggerConfetti({
+          origin: { x: 0.5, y: 0.72 },
+          count: 140
+        });
       }
 
       // 3. Reset form và biểu tượng cảm xúc
