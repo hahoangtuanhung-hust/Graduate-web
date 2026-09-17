@@ -395,9 +395,7 @@ void main() {
       });
     }
 
-    function render() {
-      renderId = 0;
-      syncElements();
+    function updateUniforms() {
       updateSize();
       const pixelRatio = renderer.getPixelRatio();
       materials.forEach((material, index) => {
@@ -422,11 +420,28 @@ void main() {
         uniforms.uBgTex.value = backdropTexture;
         uniforms.uBgAspect.value = bgAspect;
       });
+    }
+
+    // ── Continuous RAF loop ────────────────────────────────────────────────
+    // Re-read getBoundingClientRect every frame so glass positions are always
+    // pixel-perfect regardless of scroll velocity or inertia.
+    let loopRunning = false;
+    let dirty = true; // flag: re-render even when layout hasn't changed
+
+    function loop() {
+      syncElements();
+      updateUniforms();
       renderer.render(scene, camera);
+      dirty = false;
+      renderId = requestAnimationFrame(loop);
     }
 
     function scheduleRender() {
-      if (!renderId) renderId = requestAnimationFrame(render);
+      dirty = true;
+      if (!loopRunning) {
+        loopRunning = true;
+        renderId = requestAnimationFrame(loop);
+      }
     }
 
     function setTheme(theme) {
@@ -444,10 +459,20 @@ void main() {
       scheduleRender();
     }
 
-    window.addEventListener('resize', scheduleRender, { passive: true });
-    window.addEventListener('scroll', scheduleRender, { passive: true });
-    document.addEventListener('scroll', scheduleRender, { passive: true, capture: true });
-    document.addEventListener('visibilitychange', scheduleRender);
+    window.addEventListener('resize', updateSize, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // Pause loop when tab is hidden to save GPU
+        if (renderId) {
+          cancelAnimationFrame(renderId);
+          renderId = 0;
+          loopRunning = false;
+        }
+      } else {
+        loopRunning = false;
+        scheduleRender();
+      }
+    });
 
     if ('ResizeObserver' in window) {
       resizeObserver = new ResizeObserver(scheduleRender);
@@ -466,7 +491,9 @@ void main() {
       });
     }
 
-    scheduleRender();
+    // Kick off the continuous loop immediately
+    loopRunning = true;
+    renderId = requestAnimationFrame(loop);
 
     return {
       refresh() {
