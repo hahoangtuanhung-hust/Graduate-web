@@ -69,14 +69,15 @@
   animation: pulseGlow 2.5s infinite;
 }
 
-/* Musical Note Icon & Slow Rotation */
+/* Musical Note Icon & Rotation */
 .music-note-icon {
   width: 20px;
   height: 20px;
   display: block;
-  transform-origin: 50% 50%;
+  transform-origin: center center;
+  transform-box: fill-box;
   color: currentColor;
-  opacity: 0.72;
+  opacity: 0.75;
   transition: opacity var(--transition-fast), transform var(--transition-fast);
 }
 
@@ -84,16 +85,19 @@
   opacity: 1;
 }
 
-.audio-btn.playing .music-note-icon {
+.audio-btn.playing .music-note-icon,
+.audio-btn.playing svg {
   opacity: 1;
-  animation: rotateMusicNote 8s linear infinite;
+  transform-origin: center center;
+  transform-box: fill-box;
+  animation: rotateMusicNote 3.5s linear infinite !important;
 }
 
 @keyframes rotateMusicNote {
-  from {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  100% {
     transform: rotate(360deg);
   }
 }

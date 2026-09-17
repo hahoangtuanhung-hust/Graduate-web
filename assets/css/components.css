@@ -459,10 +459,17 @@
   animation: audioPulseRing 2.2s ease-in-out infinite;
 }
 
+.audio-btn.playing .music-note-icon,
+.audio-btn.playing svg {
+  opacity: 1;
+  transform-origin: center center;
+  transform-box: fill-box;
+  animation: rotateMusicNote 3.5s linear infinite !important;
+}
 
-@keyframes rotateMusicDisc {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes rotateMusicNote {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Mobile Quick Navigation Bar (Bottom Dock) */
@@ -648,117 +655,134 @@
   padding-top: 0.25rem;
   background: var(--wish-action-tint);
   border-radius: var(--radius-sm);
+  position: relative;
 }
 
-/* Each action button (Thích / Bình luận) */
-.social-action-btn {
+/* Container for reaction button and its floating popup */
+.social-reaction-container {
   flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+}
+
+/* Main Action button (Thả cảm xúc / Đã thả) */
+.social-action-btn {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   background: transparent;
   border: none;
-  padding: 0.5rem;
+  padding: 0.55rem 0.75rem;
   border-radius: 8px;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 .social-action-btn:hover {
   background: var(--surface-control-hover);
   color: var(--text-primary);
 }
 .social-action-btn.active {
-  color: var(--text-accent);
+  color: #6bd4c6;
+  font-weight: 700;
+  background: rgba(107, 212, 198, 0.12);
+}
+.social-action-btn.active:hover {
+  background: rgba(107, 212, 198, 0.2);
+  color: #a2f2e7;
 }
 
-/* Hover Tooltip for Reactions */
-.social-reaction-container {
-  flex: 1;
-  position: relative;
-  display: flex;
-}
+/* Floating Tooltip with Reaction Emojis - Centered Dark Glassmorphism */
 .social-reaction-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   left: 50%;
-  transform: translateX(-50%) translateY(6px);
-  background: var(--surface-paper);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.35rem 0.6rem;
-  display: flex;
-  gap: 0.25rem;
-  box-shadow: var(--glass-shadow);
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(12, 28, 44, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(213, 229, 237, 0.22);
+  border-radius: 9999px;
+  padding: 0.35rem 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  box-shadow: 0 14px 34px rgba(3, 12, 23, 0.45), 0 2px 8px rgba(3, 12, 23, 0.25);
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
-  z-index: 10;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
+  z-index: 50;
   white-space: nowrap;
 }
-.social-reaction-container:hover .social-reaction-tooltip {
+
+/* Invisible bridge so moving cursor from button to tooltip doesn't lose hover */
+.social-reaction-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 14px;
+}
+
+/* Elegant downward arrow pointing to the button */
+.social-reaction-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: rgba(12, 28, 44, 0.95) transparent transparent transparent;
+}
+
+.social-reaction-container:hover .social-reaction-tooltip,
+.social-reaction-tooltip.touch-open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
 
+/* Individual Emoji Button inside Tooltip */
 .social-reaction-tooltip .reaction-btn {
   background: transparent;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   cursor: pointer;
-  padding: 0.1rem;
+  padding: 0.15rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   line-height: 1;
-  transition: transform var(--transition-bounce);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.15s ease, box-shadow 0.15s ease;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 .social-reaction-tooltip .reaction-btn:hover {
   transform: scale(1.35) translateY(-4px);
+  background: rgba(255, 255, 255, 0.14);
 }
-
-/* =========================================================================
-   REACTION — one per user styles
-   ========================================================================= */
-
-/* When already reacted: action btn turns colored */
-.social-action-btn.active {
-  color: var(--text-accent);
-  font-weight: 700;
+.social-reaction-tooltip .reaction-btn.user-reacted {
+  background: rgba(107, 212, 198, 0.24);
+  box-shadow: 0 0 10px rgba(107, 212, 198, 0.5);
+  transform: scale(1.15);
 }
-
-/* Change-reaction tooltip label */
-.change-reaction-tooltip {
-  align-items: center;
-}
-.change-label {
-  font-size: 0.72rem;
-  color: var(--text-paper);
-  white-space: nowrap;
-  padding-right: 0.25rem;
-  border-right: 1px solid var(--color-border-subtle);
-  margin-right: 0.15rem;
-}
-
-/* Remove reaction button */
-.remove-reaction-btn {
-  background: transparent;
-  border: none;
-  font-size: 0.8rem;
-  color: var(--text-paper);
-  cursor: pointer;
-  padding: 0.15rem 0.3rem;
-  border-radius: 50%;
-  line-height: 1;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
-  margin-left: 0.15rem;
-  border-left: 1px solid var(--color-border-subtle);
-}
-.remove-reaction-btn:hover {
-  background: rgba(180, 35, 47, 0.12);
-  color: #f06b75;
+.social-reaction-tooltip .reaction-btn.user-reacted:hover {
+  transform: scale(1.35) translateY(-4px);
+  background: rgba(107, 212, 198, 0.35);
 }
 
 .hero-title {

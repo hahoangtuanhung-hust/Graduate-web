@@ -18,8 +18,8 @@
 
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="assets/css/style.css?v=21">
-  <link rel="stylesheet" href="assets/css/components.css?v=33">
-  <link rel="stylesheet" href="assets/css/animations.css?v=7">
+  <link rel="stylesheet" href="assets/css/components.css?v=35">
+  <link rel="stylesheet" href="assets/css/animations.css?v=8">
 </head>
 <body data-theme="dark">
   <!-- WebGL Glass Canvas -->
@@ -204,7 +204,7 @@
             <div class="graduate-card" data-liquid-glass data-liquid-glass-hot data-liquid-glass-thickness="52" data-liquid-glass-bezel="28" data-liquid-glass-specular="0.58" data-liquid-glass-shadow="0.48">
               <div class="photo-container">
                 <!-- SVG Illustrated Graduate Portrait (High-res styling) -->
-                <img src="./assets/anh-cua-toi.jpg" alt="Ảnh Tốt Nghiệp" class="graduate-photo">
+                <img src="./assets/anh-cua-toi.JPG" alt="Ảnh Tốt Nghiệp" class="graduate-photo" onerror="if(!this.src.endsWith('.jpg')) this.src='./assets/anh-cua-toi.jpg';">
 
                 <div class="photo-overlay-badge">
                   <div class="badge-info">
@@ -464,14 +464,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="assets/js/liquid-glass-component.js?v=4"></script>
   <script src="assets/js/countdown.js?v=2"></script>
-  <script src="assets/js/audio.js"></script>
+  <script src="assets/js/audio.js?v=2"></script>
   <!-- Firebase Compat for universal support (works on file:/// and web servers) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="assets/js/guestbook.js?v=12"></script>
+  <script src="assets/js/guestbook.js?v=14"></script>
   <script src="assets/js/gallery.js"></script>
   <script src="assets/js/cursor-glass.js?v=2"></script>
-  <script src="assets/js/app.js"></script>
+  <!-- Canvas Confetti for Celebration Effects -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="assets/js/app.js?v=2"></script>
 
 </body>
 </html>

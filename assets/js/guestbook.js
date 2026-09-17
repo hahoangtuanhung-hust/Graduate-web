@@ -67,17 +67,25 @@
     }
   ];
 
+  // Clean up legacy test wishes from previous session if any
+  try {
+    const raw = localStorage.getItem(LS_LOCAL_WISHES);
+    if (raw && (raw.includes('Agent Test') || raw.includes('sample-1'))) {
+      localStorage.removeItem(LS_LOCAL_WISHES);
+    }
+  } catch {}
+
   function getLocalWishes() {
     try {
       const stored = localStorage.getItem(LS_LOCAL_WISHES);
-      if (stored) {
+      if (stored !== null) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.warn("Could not read local wishes:", e);
     }
-    return DEFAULT_WISHES;
+    return [];
   }
 
   function saveLocalWishes(wishes) {
@@ -101,16 +109,28 @@
     }
   }
 
-  function toggleMyReaction(wishId, emoji) {
+  function toggleMyReaction(wishId, emoji, forceAdd) {
     try {
       const data = JSON.parse(localStorage.getItem(LS_REACTIONS_KEY) || '{}');
       let list = Array.isArray(data[wishId]) ? data[wishId] : (data[wishId] ? [data[wishId]] : []);
       const idx = list.indexOf(emoji);
-      const isAdded = (idx === -1);
-      if (isAdded) {
-        list.push(emoji);
+      
+      let isAdded;
+      if (typeof forceAdd === 'boolean') {
+        if (forceAdd) {
+          if (idx === -1) list.push(emoji);
+          isAdded = true;
+        } else {
+          if (idx !== -1) list.splice(idx, 1);
+          isAdded = false;
+        }
       } else {
-        list.splice(idx, 1);
+        isAdded = (idx === -1);
+        if (isAdded) {
+          list.push(emoji);
+        } else {
+          list.splice(idx, 1);
+        }
       }
       data[wishId] = list;
       localStorage.setItem(LS_REACTIONS_KEY, JSON.stringify(data));
@@ -312,21 +332,16 @@
         <!-- Multi-Reaction Bar -->
         <div class="social-actions-bar">
           <div class="social-reaction-container${hasReacted ? ' reacted' : ''}">
-            <button class="social-action-btn${hasReacted ? ' active' : ''}" type="button" title="Thả hoặc đổi cảm xúc">
+            <button class="social-action-btn${hasReacted ? ' active' : ''}" type="button" title="${hasReacted ? 'Nhấn để hủy bỏ cảm xúc' : 'Thả cảm xúc'}">
               ${likeLabel}
             </button>
             
-            <!-- Hover/Tap Tooltip for Reactions (Chọn được nhiều biểu tượng cảm xúc) -->
-            <div class="social-reaction-tooltip">
-              <span class="change-label" style="display:block; font-size:0.7rem; color:rgba(255,255,255,0.7); margin-bottom:4px; text-align:center;">
-                ${hasReacted ? 'Chọn thêm hoặc bỏ chọn:' : 'Chọn cảm xúc (chọn nhiều):'}
-              </span>
-              <div style="display:flex; gap:6px; align-items:center;">
-                ${allReactionTypes.map(rEmoji => {
-                  const isUserChosen = myReactions.includes(rEmoji);
-                  return `<button class="reaction-btn${isUserChosen ? ' user-reacted' : ''}" type="button" data-id="${wish.id}" data-type="${rEmoji}" title="${isUserChosen ? 'Bỏ chọn ' + rEmoji : 'Thả ' + rEmoji}" style="${isUserChosen ? 'background:rgba(21,157,142,0.35); border-radius:50%; box-shadow:0 0 8px rgba(78,205,196,0.6);' : ''}">${rEmoji}</button>`;
-                }).join('')}
-              </div>
+            <!-- Hover/Tap Tooltip for Reactions (Căn giữa chuẩn & hỗ trợ bấm lần nữa để hủy) -->
+            <div class="social-reaction-tooltip" role="tooltip">
+              ${allReactionTypes.map(rEmoji => {
+                const isUserChosen = myReactions.includes(rEmoji);
+                return `<button class="reaction-btn${isUserChosen ? ' user-reacted' : ''}" type="button" data-id="${wish.id}" data-type="${rEmoji}" title="${isUserChosen ? 'Bỏ chọn ' + rEmoji : 'Thả ' + rEmoji}">${rEmoji}</button>`;
+              }).join('')}
             </div>
           </div>
         </div>
@@ -347,11 +362,9 @@
           snapshot.forEach((docSnap) => {
             wishes.push({ id: docSnap.id, ...docSnap.data() });
           });
-          if (wishes.length > 0) {
-            currentWishes = wishes;
-            saveLocalWishes(wishes);
-            renderWishes();
-          }
+          currentWishes = wishes;
+          saveLocalWishes(wishes);
+          renderWishes();
         },
         (error) => {
           console.warn("Firestore onSnapshot error, using local wishes:", error);
@@ -361,6 +374,33 @@
       );
     } catch (err) {
       console.warn("Could not bind Firestore listener:", err);
+    }
+  }
+
+  // ─── Unified Reaction Action Helper ─────────────────────────────────────────
+  async function applyReactionChange(wishId, reactionType, forceAdd) {
+    const isAdded = toggleMyReaction(wishId, reactionType, forceAdd);
+    const delta = isAdded ? 1 : -1;
+
+    // Cập nhật state nội bộ ngay lập tức để người dùng thấy phản hồi
+    const targetWish = currentWishes.find(w => w.id === wishId);
+    if (targetWish) {
+      if (!targetWish.reactions) targetWish.reactions = {};
+      targetWish.reactions[reactionType] = Math.max(0, (targetWish.reactions[reactionType] || 0) + delta);
+      saveLocalWishes(currentWishes);
+      renderWishes();
+    }
+
+    // Đồng bộ lên Firebase Firestore nếu có kết nối
+    if (db && wishesCollection) {
+      try {
+        const wishRef = wishesCollection.doc(wishId);
+        await wishRef.update({
+          [`reactions.${reactionType}`]: firebase.firestore.FieldValue.increment(delta)
+        });
+      } catch (err) {
+        console.warn("Could not sync reaction to Firebase:", err);
+      }
     }
   }
 
@@ -383,23 +423,7 @@
 
   if (wishesListEl) {
     wishesListEl.addEventListener('click', async (e) => {
-      // Touch support: toggle reaction tooltip on mobile
-      if (isTouchDevice()) {
-        const mainBtn = e.target.closest('.social-action-btn');
-        if (mainBtn && mainBtn.closest('.social-reaction-container')) {
-          e.stopPropagation();
-          const container = mainBtn.closest('.social-reaction-container');
-          const tooltip = container.querySelector('.social-reaction-tooltip');
-          if (tooltip) {
-            const isOpen = tooltip.classList.contains('touch-open');
-            closeAllTooltips();
-            if (!isOpen) tooltip.classList.add('touch-open');
-            return;
-          }
-        }
-      }
-
-      // Handle clicking a reaction emoji button (toggles on / off)
+      // 1. Nhấp vào 1 biểu tượng cảm xúc cụ thể trong popup
       const reactBtn = e.target.closest('.reaction-btn');
       if (reactBtn) {
         e.preventDefault();
@@ -409,29 +433,33 @@
         const reactionType = reactBtn.getAttribute('data-type');
         if (!wishId || !reactionType) return;
 
-        const isAdded = toggleMyReaction(wishId, reactionType);
-        const delta = isAdded ? 1 : -1;
+        closeAllTooltips();
+        await applyReactionChange(wishId, reactionType);
+        return;
+      }
 
-        // Cập nhật state nội bộ ngay lập tức để người dùng thấy phản hồi
-        const targetWish = currentWishes.find(w => w.id === wishId);
-        if (targetWish) {
-          if (!targetWish.reactions) targetWish.reactions = {};
-          targetWish.reactions[reactionType] = Math.max(0, (targetWish.reactions[reactionType] || 0) + delta);
-          saveLocalWishes(currentWishes);
-          renderWishes();
-        }
+      // 2. Nhấp vào nút chính (Thả cảm xúc / Đã thả)
+      const mainBtn = e.target.closest('.social-action-btn');
+      if (mainBtn && !e.target.closest('.reaction-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
 
-        // Đồng bộ lên Firebase Firestore nếu có kết nối
-        if (db && wishesCollection) {
-          try {
-            const wishRef = wishesCollection.doc(wishId);
-            await wishRef.update({
-              [`reactions.${reactionType}`]: firebase.firestore.FieldValue.increment(delta)
-            });
-          } catch (err) {
-            console.warn("Could not sync reaction to Firebase:", err);
+        const wishCard = mainBtn.closest('.wish-card');
+        const wishId = wishCard ? wishCard.getAttribute('data-id') : null;
+        if (!wishId) return;
+
+        const myReactions = getMyReactionsFor(wishId);
+        if (myReactions.length > 0) {
+          // BẤM THÊM LẦN NỮA: HỦY BỎ CẢM XÚC!
+          for (const emoji of [...myReactions]) {
+            await applyReactionChange(wishId, emoji, false);
           }
+        } else {
+          // Chưa có cảm xúc: Mặc định thả 👍
+          await applyReactionChange(wishId, '👍', true);
         }
+        closeAllTooltips();
+        return;
       }
     });
   }

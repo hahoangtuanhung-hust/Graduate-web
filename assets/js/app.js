@@ -29,12 +29,16 @@
     // Trigger open animation
     envelopeWrapper.classList.add('is-opening');
 
-    // Trigger confetti
+    // Trigger celebratory confetti explosion
     triggerConfetti();
 
-    // Try starting ambient music
-    if (window.startBackgroundMusic) {
-      window.startBackgroundMusic();
+    // Start ambient background music
+    if (typeof window.startBackgroundMusic === 'function') {
+      try {
+        window.startBackgroundMusic();
+      } catch (err) {
+        console.warn('Could not auto-start music:', err);
+      }
     }
 
     // Hide overlay after animation
@@ -50,7 +54,7 @@
   if (envelopeWrapper) envelopeWrapper.addEventListener('click', openEnvelope);
 
   // -------------------------------------------------------------------------
-  // 2. CONFETTI CANNON (Canvas particle effect)
+  // 2. CELEBRATION CONFETTI (Canvas Confetti + Fallback Particle Engine)
   // -------------------------------------------------------------------------
   const canvas = document.getElementById('confettiCanvas');
   let ctx = null;
@@ -69,28 +73,78 @@
     canvas.height = window.innerHeight;
   }
 
-  const confettiColors = ['#F2C14E', '#2A7281', '#159D8E', '#E9A21A', '#B4232F', '#6BD4C6', '#FFE4A3'];
+  const confettiColors = ['#f2c14e', '#b4232f', '#159d8e', '#6bd4c6', '#ffffff', '#ffe4a3'];
 
-  function createConfettiParticles(count = 120) {
-    const particlesArr = [];
-    for (let i = 0; i < count; i++) {
-      particlesArr.push({
-        x: Math.random() * canvas.width,
-        y: -20 - Math.random() * 50,
+  function triggerConfetti() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // 1. If library canvas-confetti is loaded, fire realistic celebration bursts
+    if (typeof window.confetti === 'function') {
+      const count = 160;
+      const defaults = {
+        origin: { y: 0.65 },
+        zIndex: 10005,
+        colors: confettiColors
+      };
+
+      function fire(particleRatio, opts) {
+        window.confetti(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55 });
+      fire(0.2, { spread: 60 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+
+      // Side cannons for extra grand opening effect
+      setTimeout(() => {
+        window.confetti({
+          particleCount: 45,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.75 },
+          zIndex: 10005,
+          colors: ['#f2c14e', '#159d8e', '#6bd4c6']
+        });
+        window.confetti({
+          particleCount: 45,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.75 },
+          zIndex: 10005,
+          colors: ['#f2c14e', '#b4232f', '#ffe4a3']
+        });
+      }, 250);
+      return;
+    }
+
+    // 2. Fallback canvas particle generator if external library is blocked
+    if (!canvas || !ctx) return;
+    const newParticles = [];
+    for (let i = 0; i < 100; i++) {
+      newParticles.push({
+        x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+        y: canvas.height * 0.5 + (Math.random() - 0.5) * 100,
         w: Math.random() * 10 + 6,
         h: Math.random() * 6 + 4,
         color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-        vx: (Math.random() - 0.5) * 4,
-        vy: Math.random() * 4 + 3,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 0.7) * 16,
         rot: Math.random() * 360,
-        vRot: (Math.random() - 0.5) * 8,
+        vRot: (Math.random() - 0.5) * 10,
         opacity: 1
       });
     }
-    return particlesArr;
+    particles = particles.concat(newParticles);
+    if (!animId) {
+      updateFallbackConfetti();
+    }
   }
 
-  function updateConfetti() {
+  function updateFallbackConfetti() {
     if (!ctx || !canvas) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -98,8 +152,9 @@
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
+      p.vy += 0.35; // Gravity
       p.rot += p.vRot;
-      p.opacity -= 0.0035;
+      p.opacity -= 0.007;
 
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -113,21 +168,18 @@
     particles = particles.filter(p => p.opacity > 0 && p.y < canvas.height + 50);
 
     if (particles.length > 0) {
-      animId = requestAnimationFrame(updateConfetti);
+      animId = requestAnimationFrame(updateFallbackConfetti);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      cancelAnimationFrame(animId);
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
     }
   }
 
-  window.triggerConfetti = function () {
-    if (!canvas || !ctx) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    particles = particles.concat(createConfettiParticles(100));
-    if (!animId || particles.length <= 100) {
-      updateConfetti();
-    }
-  };
+  // Export globally
+  window.triggerConfetti = triggerConfetti;
 
   // -------------------------------------------------------------------------
   // 3. SCROLL REVEAL (AOS Lightweight)

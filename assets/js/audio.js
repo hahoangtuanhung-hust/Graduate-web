@@ -55,17 +55,30 @@
   }
 
   function startAmbientMelody() {
-    if (!audioCtx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
-    }
+    try {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
 
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch((e) => console.warn('Audio resume error', e));
+      }
+    } catch (err) {
+      console.warn('AudioContext init error', err);
     }
 
     isPlaying = true;
     updateAudioBtnUI();
+
+    if (melodyInterval) {
+      clearInterval(melodyInterval);
+      melodyInterval = null;
+    }
+
+    // Play initial note right away
+    playTone(notes[melodySequence[seqIndex % melodySequence.length]], 1.4, 0.08);
+    seqIndex++;
 
     // Play subtle chord progression
     melodyInterval = setInterval(() => {
