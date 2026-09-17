@@ -69,29 +69,129 @@
   animation: pulseGlow 2.5s infinite;
 }
 
-/* Equalizer Bars for Audio Player */
+/* Musical Note Icon & Slow Rotation */
+.music-note-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transform-origin: 50% 50%;
+  color: currentColor;
+  opacity: 0.72;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.audio-btn:hover .music-note-icon {
+  opacity: 1;
+}
+
+.audio-btn.playing .music-note-icon {
+  opacity: 1;
+  animation: rotateMusicNote 8s linear infinite;
+}
+
+@keyframes rotateMusicNote {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dynamic Sound Wave & Audio Player Visualizer */
+.sound-wave-icon,
 .equalizer-icon {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
-  height: 14px;
-  width: 14px;
+  justify-content: center;
+  gap: 2.5px;
+  width: 18px;
+  height: 18px;
+  padding-bottom: 1px;
 }
 
+.sound-bar,
 .equalizer-bar {
+  display: inline-block;
   width: 2.5px;
+  height: 16px;
   background: currentColor;
-  border-radius: 2px;
-  animation: equalizerBounce 0.8s ease-in-out infinite alternate;
+  border-radius: 99px;
+  transform-origin: bottom center;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 
-.equalizer-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
-.equalizer-bar:nth-child(2) { height: 90%; animation-delay: 0.3s; }
-.equalizer-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+/* Paused / Resting State */
+.sound-wave-icon.paused .bar-1,
+.equalizer-icon.paused .equalizer-bar:nth-child(1) { transform: scaleY(0.25); opacity: 0.6; }
+.sound-wave-icon.paused .bar-2,
+.equalizer-icon.paused .equalizer-bar:nth-child(2) { transform: scaleY(0.45); opacity: 0.6; }
+.sound-wave-icon.paused .bar-3,
+.equalizer-icon.paused .equalizer-bar:nth-child(3) { transform: scaleY(0.30); opacity: 0.6; }
+.sound-wave-icon.paused .bar-4 { transform: scaleY(0.18); opacity: 0.6; }
 
-@keyframes equalizerBounce {
-  0% { height: 20%; }
-  100% { height: 100%; }
+/* Playing State: Organic Soundwave Waveform Animation */
+.sound-wave-icon.playing .bar-1,
+.equalizer-icon.playing .equalizer-bar:nth-child(1),
+.equalizer-bar:nth-child(1) {
+  animation: soundWaveScale1 0.82s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+.sound-wave-icon.playing .bar-2,
+.equalizer-icon.playing .equalizer-bar:nth-child(2),
+.equalizer-bar:nth-child(2) {
+  animation: soundWaveScale2 0.62s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+.sound-wave-icon.playing .bar-3,
+.equalizer-icon.playing .equalizer-bar:nth-child(3),
+.equalizer-bar:nth-child(3) {
+  animation: soundWaveScale3 0.94s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+.sound-wave-icon.playing .bar-4 {
+  animation: soundWaveScale4 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+@keyframes soundWaveScale1 {
+  0%   { transform: scaleY(0.25); }
+  25%  { transform: scaleY(0.72); }
+  50%  { transform: scaleY(0.38); }
+  75%  { transform: scaleY(0.88); }
+  100% { transform: scaleY(0.48); }
+}
+
+@keyframes soundWaveScale2 {
+  0%   { transform: scaleY(0.40); }
+  20%  { transform: scaleY(0.96); }
+  45%  { transform: scaleY(0.55); }
+  70%  { transform: scaleY(1.00); }
+  100% { transform: scaleY(0.52); }
+}
+
+@keyframes soundWaveScale3 {
+  0%   { transform: scaleY(0.30); }
+  30%  { transform: scaleY(0.86); }
+  60%  { transform: scaleY(0.42); }
+  85%  { transform: scaleY(0.94); }
+  100% { transform: scaleY(0.58); }
+}
+
+@keyframes soundWaveScale4 {
+  0%   { transform: scaleY(0.20); }
+  25%  { transform: scaleY(0.62); }
+  50%  { transform: scaleY(0.88); }
+  75%  { transform: scaleY(0.36); }
+  100% { transform: scaleY(0.76); }
+}
+
+@keyframes audioPulseRing {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(21, 157, 142, 0.45), inset 0 1px 0.5px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(21, 157, 142, 0.8), 0 0 36px rgba(107, 212, 198, 0.35), inset 0 1px 0.5px rgba(255, 255, 255, 0.8);
+  }
 }
 
 /* Confetti Canvas Container */

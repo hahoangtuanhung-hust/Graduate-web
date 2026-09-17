@@ -350,14 +350,26 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-hust-red) 0%, var(--color-hust-dark-red) 100%);
+  background: linear-gradient(135deg, #b4232f 0%, #7a121d 100%);
+  border: 1.5px solid rgba(242, 193, 78, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  color: #fff7eb;
+  font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 0.75rem;
-  box-shadow: 0 8px 16px rgba(125, 24, 34, 0.24);
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(122, 18, 29, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  transition: transform var(--transition-bounce), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.nav-brand:hover .hust-emblem-badge {
+  transform: scale(1.08);
+  border-color: rgba(242, 193, 78, 0.9);
+  box-shadow: 0 6px 18px rgba(242, 193, 78, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
 }
 
 .brand-text {
@@ -440,51 +452,13 @@
 }
 
 .audio-btn.playing {
-  background: var(--color-secondary-500);
-  color: var(--text-inverse);
-  box-shadow: 0 0 18px rgba(21, 157, 142, 0.35), inset 0 1px 0.5px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #159d8e 0%, #0d796e 100%);
+  border-color: rgba(107, 212, 198, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(21, 157, 142, 0.5), inset 0 1px 0.5px rgba(255, 255, 255, 0.6);
+  animation: audioPulseRing 2.2s ease-in-out infinite;
 }
 
-.theme-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.35);
-  transition: all var(--transition-fast);
-}
-
-.theme-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: var(--color-accent-gold);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0.5px rgba(255, 255, 255, 0.5);
-}
-
-.theme-icon-sun { display: none; }
-body[data-theme="light"] .theme-icon-moon { display: none; }
-body[data-theme="light"] .theme-icon-sun { display: block; }
-
-body[data-theme="light"] .audio-btn,
-body[data-theme="light"] .theme-btn {
-  background: rgba(255, 255, 255, 0.45);
-  border-color: rgba(23, 49, 72, 0.16);
-  box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.85);
-}
-
-body[data-theme="light"] .audio-btn:hover,
-body[data-theme="light"] .theme-btn:hover {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(23, 49, 72, 0.28);
-}
 
 @keyframes rotateMusicDisc {
   from { transform: rotate(0deg); }

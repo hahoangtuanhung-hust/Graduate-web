@@ -131,110 +131,6 @@ body[data-theme="dark"] {
   --container-max-width: 1120px;
 }
 
-body[data-theme="light"] {
-  color-scheme: light;
-  --surface-canvas: #f3f6f8;
-  --surface-canvas-raised: #e9f0f3;
-  --surface-section: rgba(231, 240, 243, 0.88);
-  --surface-elevated: rgba(255, 255, 255, 0.86);
-  --surface-elevated-hover: rgba(255, 255, 255, 0.96);
-  --surface-control: rgba(23, 49, 72, 0.07);
-  --surface-control-hover: rgba(23, 49, 72, 0.12);
-  --surface-inverse: #102238;
-  --surface-paper: #fffdf8;
-  --text-paper: #173148;
-
-  --text-primary: #173148;
-  --text-secondary: #3d5a70;
-  --text-muted: #5a7183;
-  --text-subtle: #6c8190;
-  --text-inverse: #f4f7f8;
-  --text-accent: #00695c;
-  --text-on-overlay: #f4f7f8;
-  --text-on-overlay-muted: #cbd7e0;
-  --surface-footer: #102238;
-  --footer-wash: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.36));
-  --cursor-glass-fill: rgba(255, 255, 255, 0.28);
-  --cursor-glass-border: rgba(23, 49, 72, 0.48);
-  --cursor-glass-highlight: rgba(255, 255, 255, 0.92);
-  --cursor-glass-shadow: 0 6px 20px rgba(22, 61, 81, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(23, 49, 72, 0.16);
-
-  --color-primary-900: #173148;
-  --color-primary-800: #1f4960;
-  --color-primary-700: #236879;
-  --color-primary-600: #237e8a;
-  --color-primary-500: #339a9d;
-  --color-secondary-600: #00695c;
-  --color-secondary-500: #087e70;
-  --color-secondary-400: #0e9f91;
-  --color-secondary-100: #d8f2ee;
-  --color-secondary-50: #effaf7;
-  --color-ice-blue: #dceef2;
-  --color-sky-light: #eef7f8;
-  --color-accent-gold: #b77a08;
-  --color-accent-gold-strong: #8b5e05;
-  --color-accent-gold-light: #f4d78c;
-  --color-accent-amber: #a86f06;
-  --color-ink-on-accent: #1b2530;
-
-  --color-bg-main: var(--surface-canvas);
-  --color-bg-card: var(--surface-elevated);
-  --color-bg-card-hover: var(--surface-elevated-hover);
-  --color-text-main: var(--text-primary);
-  --color-text-muted: var(--text-muted);
-  --color-text-light: var(--text-subtle);
-  --color-border-subtle: rgba(23, 49, 72, 0.15);
-  --color-border-strong: rgba(23, 49, 72, 0.24);
-  --color-border-focus: #087e70;
-
-  --color-gold-gradient: linear-gradient(135deg, #f4d78c 0%, #c48a17 52%, #8b5e05 100%);
-  --color-cool-gradient: linear-gradient(135deg, #173148 0%, #236879 52%, #00695c 100%);
-  --color-hero-gradient: linear-gradient(135deg, rgba(243, 246, 248, 0.98) 0%, rgba(224, 239, 241, 0.92) 58%, rgba(196, 232, 226, 0.82) 100%);
-  --page-gradient: linear-gradient(to bottom right, #f2e6d5 0%, #d5e5da 36%, #a9c8be 68%, #f8f0df 100%);
-
-  --glass-tint: rgba(255, 255, 255, 0.42);
-  --wish-card-tint: rgba(255, 255, 255, 0.52);
-  --wish-action-tint: rgba(255, 255, 255, 0.3);
-  --navbar-glass-fill: rgba(255, 255, 255, 0.25);
-  --navbar-glass-refraction: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(255, 255, 255, 0.15) 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.08) 75%,
-    rgba(255, 255, 255, 0.3) 100%
-  );
-  --navbar-glass-rim: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.6) 0%,
-    transparent 35%,
-    transparent 70%,
-    rgba(255, 255, 255, 0.2) 100%
-  );
-  --navbar-glass-border: rgba(255, 255, 255, 0.6);
-  --navbar-glass-highlight: rgba(255, 255, 255, 0.85);
-  --navbar-glass-shadow:
-    0 12px 32px 0 rgba(22, 61, 81, 0.1),
-    0 2px 8px 0 rgba(22, 61, 81, 0.05),
-    inset 0 1px 0.5px rgba(255, 255, 255, 0.95),
-    inset 0 -1px 0.5px rgba(23, 49, 72, 0.08),
-    inset 1px 0 1px rgba(255, 255, 255, 0.5),
-    inset -1px 0 1px rgba(255, 255, 255, 0.3);
-  --glass-blur: blur(16px) saturate(125%);
-  --glass-border: 2px solid rgba(23, 49, 72, 0.2);
-  --glass-highlight: rgba(255, 255, 255, 0.78);
-  --glass-shadow:
-    0 18px 42px rgba(22, 61, 81, 0.1),
-    0 3px 10px rgba(22, 61, 81, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(23, 49, 72, 0.04);
-  --glass-shadow-lg:
-    0 24px 56px rgba(22, 61, 81, 0.14),
-    0 8px 18px rgba(22, 61, 81, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(23, 49, 72, 0.05);
-  --focus-ring: 0 0 0 3px rgba(8, 126, 112, 0.22);
-}
 
 *,
 *::before,
@@ -267,9 +163,6 @@ body {
   transition: background-color var(--transition-slow), color var(--transition-normal);
 }
 
-body[data-theme="light"] {
-  background-image: var(--page-gradient);
-}
 
 #glassCanvas {
   position: fixed;

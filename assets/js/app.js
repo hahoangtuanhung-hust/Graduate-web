@@ -5,31 +5,11 @@
 (function () {
   'use strict';
 
-  // Keep the theme choice between visits and let the glass renderer follow it.
-  const themeToggle = document.getElementById('themeToggle');
-  const savedTheme = (() => {
-    try { return localStorage.getItem('hust-theme'); } catch { return null; }
-  })();
-
-  function applyTheme(theme) {
-    const nextTheme = theme === 'light' ? 'light' : 'dark';
-    document.body.dataset.theme = nextTheme;
-    const nextLabel = nextTheme === 'light' ? 'Chuyển sang giao diện tối' : 'Chuyển sang giao diện sáng';
-    if (themeToggle) {
-      themeToggle.title = nextLabel;
-      themeToggle.setAttribute('aria-label', nextLabel);
-      themeToggle.setAttribute('aria-pressed', String(nextTheme === 'light'));
-    }
-    if (window.LiquidGlassComponent) window.LiquidGlassComponent.setTheme(nextTheme);
-  }
-
-  applyTheme(savedTheme || 'dark');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const nextTheme = document.body.dataset.theme === 'light' ? 'dark' : 'light';
-      applyTheme(nextTheme);
-      try { localStorage.setItem('hust-theme', nextTheme); } catch { /* private browsing */ }
-    });
+  // Theme: locked to Dark mode
+  document.body.dataset.theme = 'dark';
+  try { localStorage.removeItem('hust-theme'); } catch { /* ignore */ }
+  if (window.LiquidGlassComponent) {
+    window.LiquidGlassComponent.setTheme('dark');
   }
 
   // -------------------------------------------------------------------------
