@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  // Set Target Date: August 30, 2026 at 08:00:00 AM (ICT / GMT+7)
-  const targetDate = new Date('2026-08-30T08:00:00+07:00').getTime();
+  // Set Target Date: September 27, 2026 at 10:30:00 AM (ICT / GMT+7)
+  const targetDate = new Date('2026-09-27T10:30:00+07:00').getTime();
 
   const daysEl = document.getElementById('cdDays');
   const hoursEl = document.getElementById('cdHours');
@@ -49,8 +49,8 @@
     const details = encodeURIComponent("Trân trọng kính mời quý thầy cô, gia đình và bạn bè tới tham dự Lễ Trao Bằng Tốt Nghiệp K65 Đại học Bách Khoa Hà Nội.\nĐịa điểm: Hội trường C2 & Quảng trường C1 - ĐH Bách Khoa Hà Nội.");
     const location = encodeURIComponent("Hội trường C2, Đại học Bách Khoa Hà Nội, Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội");
     // Format: YYYYMMDDTHHmmssZ
-    const startTime = "20260830T010000Z"; // 08:00 GMT+7 = 01:00 UTC
-    const endTime = "20260830T050000Z";   // 12:00 GMT+7 = 05:00 UTC
+    const startTime = "20260927T033000Z"; // 10:30 GMT+7 = 03:30 UTC
+    const endTime = "20260927T073000Z";   // 14:30 GMT+7 = 07:30 UTC
 
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startTime}/${endTime}&details=${details}&location=${location}&sf=true&output=xml`;
     window.open(googleCalendarUrl, '_blank');

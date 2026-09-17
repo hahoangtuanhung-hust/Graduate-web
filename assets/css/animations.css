@@ -40,7 +40,7 @@
 .reveal-on-scroll {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
   will-change: opacity, transform;
 }
 
@@ -58,10 +58,10 @@
 /* Pulse Glow Effect for buttons & important badges */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 0 0 rgba(242, 193, 78, 0.32);
   }
   50% {
-    box-shadow: 0 0 0 12px rgba(212, 175, 55, 0);
+    box-shadow: 0 0 0 12px rgba(242, 193, 78, 0);
   }
 }
 
@@ -125,4 +125,20 @@
 .cap-icon-anim {
   display: inline-block;
   animation: capBob 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-gold,
+  .equalizer-bar,
+  .float-subtle,
+  .cap-icon-anim,
+  .floating-accent-badge,
+  .envelope-hint {
+    animation: none;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+  }
 }

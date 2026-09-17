@@ -5,23 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thiệp Mời Dự Lễ Tốt Nghiệp | Đại Học Bách Khoa Hà Nội</title>
   <meta name="description" content="Trân trọng kính mời Quý Thầy Cô, Gia đình và Bạn bè tới tham dự Lễ Trao Bằng Tốt Nghiệp Đại học Bách Khoa Hà Nội của Hà Hoàng Tuấn Hùng.">
-  
+
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="Thiệp Mời Dự Lễ Tốt Nghiệp - Đại Học Bách Khoa Hà Nội">
   <meta property="og:description" content="Kính mời tham dự Lễ Trao Bằng Tốt Nghiệp K65 - Trường CNTT&TT - ĐH Bách Khoa Hà Nội">
   <meta property="og:type" content="website">
-  
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2">
-  <link rel="stylesheet" href="assets/css/components.css?v=9">
-  <link rel="stylesheet" href="assets/css/animations.css?v=2">
+  <link rel="stylesheet" href="assets/css/style.css?v=21">
+  <link rel="stylesheet" href="assets/css/components.css?v=33">
+  <link rel="stylesheet" href="assets/css/animations.css?v=7">
 </head>
-<body>
+<body data-theme="dark">
+  <!-- WebGL Glass Canvas -->
+  <canvas id="glassCanvas" aria-hidden="true"></canvas>
+  <div id="cursorGlass" aria-hidden="true"></div>
+
+  <!-- SVG filter used by the navbar's CSS liquid-glass layer. -->
+  <svg class="svg-filter-defs" aria-hidden="true" focusable="false" width="0" height="0" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="liquid-glass-refraction" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="26" result="noise"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>
+        <feGaussianBlur in="displaced" stdDeviation="0.35" result="displacedSoft"></feGaussianBlur>
+        <feMorphology in="SourceAlpha" operator="erode" radius="2" result="navbarInnerAlpha"></feMorphology>
+        <feComposite in="SourceAlpha" in2="navbarInnerAlpha" operator="out" result="navbarRimMask"></feComposite>
+        <feGaussianBlur in="navbarRimMask" stdDeviation="1.4" result="navbarSoftRim"></feGaussianBlur>
+        <feSpecularLighting in="navbarSoftRim" surfaceScale="3.5" specularConstant="0.62" specularExponent="24" lighting-color="#ffffff" result="navbarSpecular">
+          <feDistantLight azimuth="225" elevation="58"></feDistantLight>
+        </feSpecularLighting>
+        <feComposite in="navbarSpecular" in2="navbarRimMask" operator="in" result="navbarSpecularEdge"></feComposite>
+        <feBlend in="displacedSoft" in2="navbarSpecularEdge" mode="screen"></feBlend>
+      </filter>
+    </defs>
+  </svg>
 
   <!-- Confetti Canvas -->
   <canvas id="confettiCanvas"></canvas>
@@ -31,18 +53,18 @@
        ========================================================================= -->
   <div class="envelope-overlay" id="envelopeOverlay">
     <div class="envelope-bg-sparkles"></div>
-    
+
     <div class="envelope-wrapper" id="envelopeWrapper">
       <div class="envelope-box">
         <!-- Top Flap -->
         <div class="envelope-flap"></div>
-        
+
         <!-- Letter sliding out -->
         <div class="envelope-letter">
           <span class="letter-badge">Đại Học Bách Khoa Hà Nội</span>
           <h3 class="letter-title">THIỆP MỜI TỐT NGHIỆP</h3>
           <p class="letter-name">Hà Hoàng Tuấn Hùng</p>
-          <div style="font-size: 0.75rem; color: var(--color-secondary-600); font-weight: 600; margin-top: 4px;">
+          <div class="letter-meta">
             🎓 Kỹ thuật Máy tính - K65 SoICT
           </div>
         </div>
@@ -53,27 +75,27 @@
         <div class="envelope-pocket-bottom"></div>
 
         <!-- Wax Seal Button -->
-        <div class="envelope-seal" id="envelopeSeal" title="Chạm để mở thiệp">
+        <button class="envelope-seal" id="envelopeSeal" type="button" title="Chạm để mở thiệp" aria-label="Mở thiệp mời">
           <span class="seal-icon">🎓</span>
           <span class="seal-text">HUST</span>
-        </div>
+        </button>
       </div>
     </div>
 
-    <div class="envelope-hint" id="openEnvelopeBtn" role="button">
+    <button class="envelope-hint" id="openEnvelopeBtn" type="button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M15 3h6v6"></path>
         <path d="M10 14L21 3"></path>
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
       </svg>
       <span>Chạm vào phong bì để mở thiệp mời</span>
-    </div>
+    </button>
   </div>
 
   <!-- =========================================================================
        2. TOP NAVIGATION BAR
        ========================================================================= -->
-  <header class="site-nav">
+  <header class="site-nav navbar-liquid-glass">
     <div class="nav-brand">
       <div class="hust-emblem-badge">BK</div>
       <div>
@@ -83,22 +105,32 @@
 
     <ul class="nav-links">
       <li><a href="#hero" class="nav-link active">Trang Chủ</a></li>
-      <li><a href="#profile" class="nav-link">Thông Tin</a></li>
       <li><a href="#schedule" class="nav-link">Lịch Trình & Địa Điểm</a></li>
-      <li><a href="#gallery" class="nav-link">Kỷ Yếu</a></li>
       <li><a href="#guestbook" class="nav-link">Sổ Lưu Bút</a></li>
     </ul>
 
     <div class="nav-actions">
-      <button class="audio-btn" id="audioToggle" title="Bật/Tắt Nhạc Nền">
+      <button class="audio-btn" id="audioToggle" type="button" title="Bật/Tắt Nhạc Nền" aria-label="Bật hoặc tắt nhạc nền">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <line x1="23" y1="9" x2="17" y2="15"></line>
           <line x1="17" y1="9" x2="23" y2="15"></line>
         </svg>
       </button>
-      <a href="#guestbook" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.825rem;">
-        Gửi Lời Chúc 💐
+      <button class="theme-btn" id="themeToggle" type="button" title="Chuyển sang giao diện sáng" aria-label="Chuyển sang giao diện sáng" aria-pressed="false">
+        <svg class="theme-icon theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg class="theme-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </svg>
+      </button>
+      <a href="#guestbook" class="btn btn-primary nav-cta">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </svg>
+        <span class="nav-cta-label">Gửi Lời Chúc</span>
       </a>
     </div>
   </header>
@@ -110,10 +142,10 @@
     <section id="hero" class="hero-section">
       <div class="container">
         <div class="hero-grid">
-          
+
           <!-- Left Column: Content & Invitation Message -->
           <div class="hero-content reveal-on-scroll">
-            <div class="hero-eyebrow">
+            <div class="hero-eyebrow" data-liquid-glass data-liquid-glass-radius="999" data-liquid-glass-bezel="10" data-liquid-glass-thickness="18" data-liquid-glass-specular="0.34" data-liquid-glass-shadow="0.24">
               <span>🏛️</span>
               <span>Đại Học Bách Khoa Hà Nội • Khoá K65</span>
             </div>
@@ -136,7 +168,7 @@
             </p>
 
             <div class="hero-cta-group">
-              <button onclick="addToGoogleCalendar()" class="btn btn-gold pulse-gold">
+              <button onclick="addToGoogleCalendar()" class="btn btn-gold pulse-gold" data-liquid-glass data-liquid-glass-radius="999" data-liquid-glass-bezel="12" data-liquid-glass-thickness="20" data-liquid-glass-specular="0.42" data-liquid-glass-shadow="0.28">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -146,7 +178,7 @@
                 Lưu Vào Lịch (Google Calendar)
               </button>
 
-              <a href="#guestbook" class="btn btn-outline">
+              <a href="#guestbook" class="btn btn-outline" data-liquid-glass data-liquid-glass-radius="999" data-liquid-glass-bezel="12" data-liquid-glass-thickness="20" data-liquid-glass-specular="0.42" data-liquid-glass-shadow="0.28">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                 </svg>
@@ -155,12 +187,12 @@
             </div>
 
             <!-- Quick Meta Info Tags -->
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--color-primary-800); font-weight: 600;">
-              <span style="display: flex; align-items: center; gap: 0.35rem;">
+            <div class="hero-meta">
+              <span class="hero-meta-item">
                 📍 Hội trường C2 - ĐH Bách Khoa Hà Nội
               </span>
-              <span style="display: flex; align-items: center; gap: 0.35rem;">
-                📅 08:00 - Chủ Nhật, 30/08/2026
+              <span class="hero-meta-item">
+                📅 10h30 - Chủ Nhật, 27/09/2026
               </span>
             </div>
           </div>
@@ -178,96 +210,10 @@
               <span>K65 SoICT • HUST</span>
             </div>
 
-            <div class="graduate-card">
+            <div class="graduate-card" data-liquid-glass data-liquid-glass-hot data-liquid-glass-thickness="52" data-liquid-glass-bezel="28" data-liquid-glass-specular="0.58" data-liquid-glass-shadow="0.48">
               <div class="photo-container">
                 <!-- SVG Illustrated Graduate Portrait (High-res styling) -->
-                <svg viewBox="0 0 400 500" class="graduate-photo" style="background: linear-gradient(135deg, #0B2545 0%, #134074 50%, #0D9488 100%);">
-                  <defs>
-                    <radialGradient id="lightGlow" cx="50%" cy="30%" r="60%">
-                      <stop offset="0%" stop-color="#E0F2FE" stop-opacity="0.35" />
-                      <stop offset="100%" stop-color="#0B2545" stop-opacity="0" />
-                    </radialGradient>
-                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#FDE68A" />
-                      <stop offset="50%" stop-color="#D4AF37" />
-                      <stop offset="100%" stop-color="#B8860B" />
-                    </linearGradient>
-                    <linearGradient id="gownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#1E3A8A" />
-                      <stop offset="100%" stop-color="#0A192F" />
-                    </linearGradient>
-                    <linearGradient id="hustRedRibbon" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#EF4444" />
-                      <stop offset="100%" stop-color="#991B1B" />
-                    </linearGradient>
-                  </defs>
-
-                  <!-- Background Aura -->
-                  <circle cx="200" cy="180" r="160" fill="url(#lightGlow)" />
-                  <path d="M 0,380 Q 200,320 400,380 L 400,500 L 0,500 Z" fill="#061224" opacity="0.4" />
-
-                  <!-- HUST Building Silhouette Background -->
-                  <g opacity="0.18" fill="#FFF">
-                    <rect x="50" y="160" width="80" height="90" rx="4" />
-                    <rect x="150" y="130" width="100" height="120" rx="4" />
-                    <polygon points="150,130 200,80 250,130" />
-                    <rect x="270" y="160" width="80" height="90" rx="4" />
-                  </g>
-
-                  <!-- Graduate Body & Gown -->
-                  <g id="gown">
-                    <!-- Gown Shoulders -->
-                    <path d="M 80,480 C 80,330 140,280 200,280 C 260,280 320,330 320,480 Z" fill="url(#gownGrad)" />
-                    <!-- White Collar -->
-                    <polygon points="200,280 175,250 225,250" fill="#FFFFFF" />
-                    <polygon points="200,270 190,250 210,250" fill="#A81C26" />
-                    
-                    <!-- Graduation Red & Gold Honor Stole (Dải ruy băng danh dự Bách Khoa) -->
-                    <path d="M 150,280 Q 140,360 135,480 L 175,480 Q 175,370 185,280 Z" fill="url(#hustRedRibbon)" />
-                    <path d="M 250,280 Q 260,360 265,480 L 225,480 Q 225,370 215,280 Z" fill="url(#hustRedRibbon)" />
-                    
-                    <!-- Gold trims on stole -->
-                    <path d="M 135,465 L 175,465 L 175,475 L 135,475 Z" fill="url(#goldGrad)" />
-                    <path d="M 225,465 L 265,465 L 265,475 L 225,475 Z" fill="url(#goldGrad)" />
-
-                    <!-- Diploma Scroll Held in Hands -->
-                    <g transform="translate(145, 410) rotate(-15)">
-                      <rect x="0" y="0" width="120" height="28" rx="6" fill="#FFFDF5" stroke="#E2E8F0" stroke-width="2" />
-                      <rect x="48" y="-2" width="16" height="32" rx="2" fill="url(#hustRedRibbon)" />
-                      <circle cx="56" cy="14" r="8" fill="url(#goldGrad)" />
-                    </g>
-                  </g>
-
-                  <!-- Head & Face -->
-                  <g id="head">
-                    <!-- Neck -->
-                    <rect x="182" y="210" width="36" height="45" fill="#E8C39E" rx="8" />
-                    <!-- Face -->
-                    <ellipse cx="200" cy="180" rx="42" ry="50" fill="#F8D3B4" />
-                    <!-- Hair -->
-                    <path d="M 155,170 C 155,120 245,120 245,170 C 245,150 230,135 200,135 C 170,135 155,150 155,170 Z" fill="#1A202C" />
-                    <!-- Eyes & Eyebrows -->
-                    <path d="M 175,160 Q 185,156 192,160" stroke="#1A202C" stroke-width="2.5" fill="none" stroke-linecap="round" />
-                    <path d="M 208,160 Q 215,156 225,160" stroke="#1A202C" stroke-width="2.5" fill="none" stroke-linecap="round" />
-                    <circle cx="184" cy="170" r="3.5" fill="#1A202C" />
-                    <circle cx="216" cy="170" r="3.5" fill="#1A202C" />
-                    <!-- Smile -->
-                    <path d="M 186,198 Q 200,212 214,198" stroke="#A84343" stroke-width="3" fill="none" stroke-linecap="round" />
-                  </g>
-
-                  <!-- Graduation Cap (Mortarboard) -->
-                  <g id="cap">
-                    <!-- Cap skull cap -->
-                    <path d="M 165,145 C 165,130 235,130 235,145 Z" fill="#0A192F" />
-                    <!-- Cap top diamond -->
-                    <polygon points="200,90 285,125 200,150 115,125" fill="#0A192F" stroke="url(#goldGrad)" stroke-width="1.5" />
-                    <!-- Cap Button -->
-                    <circle cx="200" cy="120" r="5" fill="url(#goldGrad)" />
-                    <!-- Gold Tassel -->
-                    <path d="M 200,120 Q 240,130 255,165" stroke="url(#goldGrad)" stroke-width="2.5" fill="none" />
-                    <polygon points="252,165 258,165 260,185 250,185" fill="url(#goldGrad)" />
-                  </g>
-                </svg>
+                <img src="./assets/anh-cua-toi.jpg" alt="Ảnh Tốt Nghiệp" class="graduate-photo">
 
                 <div class="photo-overlay-badge">
                   <div class="badge-info">
@@ -288,8 +234,9 @@
 
     <!-- =========================================================================
          4. COUNTDOWN CLOCK SECTION
+
          ========================================================================= -->
-    <section class="section" style="padding-top: 1rem; padding-bottom: 2rem;">
+    <section class="section countdown-section">
       <div class="container">
         <div class="countdown-box reveal-on-scroll">
           <div class="countdown-title">
@@ -313,46 +260,9 @@
               <div class="digit-label">Giây</div>
             </div>
           </div>
-          <p style="color: rgba(255,255,255,0.75); font-size: 0.9rem;">
-            Chủ Nhật, ngày 30 tháng 08 năm 2026 • 08:00 AM (Giờ Hà Nội)
+          <p class="countdown-note">
+            Chủ Nhật, ngày 27 tháng 09 năm 2026 • 10:30 AM
           </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================================================================
-         5. GRADUATE PROFILE DETAILS & ACHIEVEMENTS
-         ========================================================================= -->
-    <section id="profile" class="section">
-      <div class="container">
-        <div class="section-header reveal-on-scroll">
-          <span class="section-badge">Thông Tin Cá Nhân</span>
-          <h2 class="section-title">Hành Trình 6 Năm Bách Khoa</h2>
-          <p class="section-subtitle">
-            Những dấu mốc đáng nhớ trong quá trình học tập, nghiên cứu và trưởng thành tại ngôi trường kỹ thuật hàng đầu Việt Nam.
-          </p>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-          
-          <div class="glass-card reveal-on-scroll" style="padding: 2rem;">
-            <div style="font-size: 2.2rem; margin-bottom: 1rem;">🏛️</div>
-            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-primary-900);">Đơn Vị Đào Tạo</h3>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem;">
-              <strong>Trường Công nghệ Thông tin & Truyền thông</strong><br>
-              Đại học Bách Khoa Hà Nội (SoICT - HUST).
-            </p>
-          </div>
-
-          <div class="glass-card reveal-on-scroll delay-100" style="padding: 2rem;">
-            <div style="font-size: 2.2rem; margin-bottom: 1rem;">📜</div>
-            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-primary-900);">Chuyên Ngành</h3>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem;">
-              <strong>Kỹ thuật máy tính</strong><br>
-              (K65: 2020 - 2026).
-            </p>
-          </div>
-
         </div>
       </div>
     </section>
@@ -360,7 +270,7 @@
     <!-- =========================================================================
          6. CEREMONY SCHEDULE & INTERACTIVE LOCATION MAP
          ========================================================================= -->
-    <section id="schedule" class="section" style="background: rgba(255,255,255,0.5);">
+    <section id="schedule" class="section schedule-section">
       <div class="container">
         <div class="section-header reveal-on-scroll">
           <span class="section-badge">Thời Gian & Địa Điểm</span>
@@ -370,48 +280,32 @@
           </p>
         </div>
 
-        <div class="event-info-grid">
-          
-          <!-- Timeline Card -->
-          <div class="glass-card timeline-card reveal-on-scroll">
-            <h3 style="font-size: 1.35rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem;">
+        <div class="glass-card event-info-shell reveal-on-scroll" data-liquid-glass data-liquid-glass-hot>
+
+          <!-- Timeline Panel -->
+          <div class="timeline-card event-info-panel">
+            <h3 class="card-title">
               <span>🕒</span> Lịch Trình Chi Tiết
             </h3>
 
             <ul class="timeline-list">
               <li class="timeline-item">
                 <div class="timeline-marker"></div>
-                <span class="timeline-time">07:30 - 08:30</span>
-                <h4 class="timeline-title">Đón Tiếp Khách Mời & Check-in</h4>
-                <p class="timeline-desc">Đón tiếp quý thầy cô, gia đình, bạn bè tại sảnh Hội trường C2 và nhận hoa, chụp ảnh kỷ niệm ban đầu.</p>
+                <span class="timeline-time">10:30 - 12:00</span>
+                <h4 class="timeline-title">Đón tiếp, Chụp ảnh kỷ niệm</h4>
               </li>
 
               <li class="timeline-item">
                 <div class="timeline-marker"></div>
-                <span class="timeline-time">08:30 - 10:00</span>
-                <h4 class="timeline-title">Nghi Thức Trao Bằng Chính Thức</h4>
-                <p class="timeline-desc">Khai mạc buổi lễ, phát biểu của Ban Giám hiệu ĐH Bách Khoa Hà Nội và nghi lễ xướng tên trao bằng tốt nghiệp.</p>
-              </li>
-
-              <li class="timeline-item">
-                <div class="timeline-marker"></div>
-                <span class="timeline-time">10:00 - 11:30</span>
-                <h4 class="timeline-title">Chụp Ảnh Kỷ Niệm & Chúc Mừng</h4>
-                <p class="timeline-desc">Chụp ảnh lưu niệm tại Quảng trường C1, Biểu tượng Parabol Bách Khoa và Thư viện Tạ Quang Bửu.</p>
-              </li>
-
-              <li class="timeline-item">
-                <div class="timeline-marker"></div>
-                <span class="timeline-time">11:30 Trở đi</span>
-                <h4 class="timeline-title">Tiệc Trà Thân Mật</h4>
-                <p class="timeline-desc">Gặp gỡ thân mật cùng gia đình, thầy cô và nhóm bạn cùng khoá.</p>
+                <span class="timeline-time">12:00 Trở đi</span>
+                <h4 class="timeline-title">Tiệc thân mật</h4>
               </li>
             </ul>
           </div>
 
-          <!-- Location & Interactive Map Card -->
-          <div class="glass-card map-card reveal-on-scroll delay-100">
-            <h3 style="font-size: 1.35rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem;">
+          <!-- Location & Interactive Map Panel -->
+          <div class="map-card event-info-panel">
+            <h3 class="card-title">
               <span>📍</span> Địa Điểm Tổ Chức
             </h3>
 
@@ -447,16 +341,16 @@
 
             <!-- Embedded Google Map -->
             <div class="map-embed-wrapper">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.633842603848!2d105.84074577587707!3d21.007310388514125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ac76ccab6dd7%3A0x55e92a5b07a97d03!2zxJDhuqFpIGjhu41jIELDqWNoIGtob2EgSMOgIE7hu5lp!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s" 
-                allowfullscreen="" 
-                loading="lazy" 
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.633842603848!2d105.84074577587707!3d21.007310388514125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ac76ccab6dd7%3A0x55e92a5b07a97d03!2zxJDhuqFpIGjhu41jIELDqWNoIGtob2EgSMOgIE7hu5lp!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s"
+                allowfullscreen=""
+                loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
                 title="Bản đồ Đại học Bách Khoa Hà Nội">
               </iframe>
             </div>
 
-            <a href="https://maps.app.goo.gl/1v8K3k5f7u5V1v7Z8" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: 100%;">
+            <a href="https://maps.app.goo.gl/1v8K3k5f7u5V1v7Z8" target="_blank" rel="noopener noreferrer" class="btn btn-primary full-width-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
               </svg>
@@ -469,114 +363,9 @@
     </section>
 
     <!-- =========================================================================
-         7. PHOTO GALLERY (Thư viện ảnh kỷ yếu thanh xuân HUST)
-         ========================================================================= -->
-    <section id="gallery" class="section">
-      <div class="container">
-        <div class="section-header reveal-on-scroll">
-          <span class="section-badge">Khoảnh Khắc Kỷ Niệm</span>
-          <h2 class="section-title">Thanh Xuân Dưới Mái Trường Bách Khoa</h2>
-          <p class="section-subtitle">
-            Những hình ảnh đẹp ghi dấu chặng đường học tập, bạn bè và niềm tự hào khi chuẩn bị đón nhận bằng.
-          </p>
-        </div>
-
-        <div class="gallery-grid">
-          
-          <!-- Item 1 (Span 2) -->
-          <div class="gallery-item span-2 reveal-on-scroll">
-            <svg viewBox="0 0 800 400" class="gallery-img" style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%);">
-              <rect width="800" height="400" fill="#0B2545" />
-              <!-- HUST Library Graphic -->
-              <g fill="#FFF" opacity="0.12">
-                <rect x="100" y="80" width="600" height="260" rx="10" />
-                <rect x="140" y="120" width="80" height="180" rx="4" />
-                <rect x="260" y="120" width="80" height="180" rx="4" />
-                <rect x="380" y="120" width="80" height="180" rx="4" />
-                <rect x="500" y="120" width="80" height="180" rx="4" />
-                <rect x="620" y="120" width="40" height="180" rx="4" />
-              </g>
-              <text x="400" y="210" fill="#E0F2FE" font-family="'Playfair Display', serif" font-size="28" font-weight="700" text-anchor="middle">
-                Thư Viện Tạ Quang Bửu • HUST
-              </text>
-              <text x="400" y="245" fill="#64DFDF" font-family="sans-serif" font-size="16" font-weight="600" text-anchor="middle">
-                Nơi gắn liền với hàng ngàn giờ ôn luyện và làm đồ án
-              </text>
-            </svg>
-            <div class="gallery-overlay">
-              <div class="gallery-overlay-title">Thư Viện Tạ Quang Bửu</div>
-              <div class="gallery-overlay-tag">Biểu tượng tri thức Bách Khoa</div>
-            </div>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="gallery-item reveal-on-scroll delay-100">
-            <svg viewBox="0 0 400 400" class="gallery-img" style="background: linear-gradient(135deg, #134074 0%, #0D9488 100%);">
-              <circle cx="200" cy="170" r="90" fill="rgba(255,255,255,0.15)" />
-              <text x="200" y="180" fill="#FFF" font-size="64" text-anchor="middle">🎓</text>
-              <text x="200" y="270" fill="#FFF" font-family="'Playfair Display', serif" font-size="18" font-weight="700" text-anchor="middle">
-                Áo Thụng Tốt Nghiệp
-              </text>
-            </svg>
-            <div class="gallery-overlay">
-              <div class="gallery-overlay-title">Áo Cử Nhân K65</div>
-              <div class="gallery-overlay-tag">Khoảnh khắc tự hào</div>
-            </div>
-          </div>
-
-          <!-- Item 3 -->
-          <div class="gallery-item reveal-on-scroll delay-200">
-            <svg viewBox="0 0 400 400" class="gallery-img" style="background: linear-gradient(135deg, #0B2545 0%, #1D4ED8 100%);">
-              <!-- Parabol symbol -->
-              <path d="M 60,320 Q 200,60 340,320" stroke="#FDE68A" stroke-width="12" fill="none" stroke-linecap="round" />
-              <text x="200" y="360" fill="#FFF" font-family="sans-serif" font-size="15" font-weight="700" text-anchor="middle">
-                Cổng Parabol Giải Phóng
-              </text>
-            </svg>
-            <div class="gallery-overlay">
-              <div class="gallery-overlay-title">Cổng Parabol Bách Khoa</div>
-              <div class="gallery-overlay-tag">Dấu ấn kỷ niệm ngày đầu nhập học</div>
-            </div>
-          </div>
-
-          <!-- Item 4 -->
-          <div class="gallery-item reveal-on-scroll delay-100">
-            <svg viewBox="0 0 400 400" class="gallery-img" style="background: linear-gradient(135deg, #0D9488 0%, #134074 100%);">
-              <circle cx="200" cy="160" r="70" fill="rgba(255,255,255,0.1)" />
-              <text x="200" y="175" fill="#FFF" font-size="54" text-anchor="middle">💻</text>
-              <text x="200" y="260" fill="#FFF" font-family="'Playfair Display', serif" font-size="18" font-weight="700" text-anchor="middle">
-                Lab Nghiên Cứu SoICT
-              </text>
-            </svg>
-            <div class="gallery-overlay">
-              <div class="gallery-overlay-title">Phòng Lab & Đồ Án</div>
-              <div class="gallery-overlay-tag">Những đêm nghiên cứu khoa học</div>
-            </div>
-          </div>
-
-          <!-- Item 5 -->
-          <div class="gallery-item reveal-on-scroll delay-200">
-            <svg viewBox="0 0 400 400" class="gallery-img" style="background: linear-gradient(135deg, #1E293B 0%, #0B2545 100%);">
-              <circle cx="200" cy="160" r="70" fill="rgba(253,230,138,0.2)" />
-              <text x="200" y="175" fill="#FFF" font-size="54" text-anchor="middle">💐</text>
-              <text x="200" y="260" fill="#FDE68A" font-family="'Playfair Display', serif" font-size="18" font-weight="700" text-anchor="middle">
-                Hội Trường C2
-              </text>
-            </svg>
-            <div class="gallery-overlay">
-              <div class="gallery-overlay-title">Hội Trường C2</div>
-              <div class="gallery-overlay-tag">Nơi diễn ra Lễ Trao Bằng</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- =========================================================================
          8. GUESTBOOK & WISHES WALL (Sổ lưu bút & Gửi lời chúc)
          ========================================================================= -->
-    <section id="guestbook" class="section" style="background: rgba(240, 249, 255, 0.6);">
+    <section id="guestbook" class="section guestbook-section">
       <div class="container">
         <div class="section-header reveal-on-scroll">
           <span class="section-badge">Sổ Lưu Bút Online</span>
@@ -587,10 +376,10 @@
         </div>
 
         <div class="guestbook-grid">
-          
+
           <!-- Left: Wish Submission Form -->
-          <div class="glass-card wish-form-card reveal-on-scroll">
-            <h3 style="font-size: 1.35rem; margin-bottom: 1.5rem; color: var(--color-primary-900);">
+          <div class="glass-card wish-form-card reveal-on-scroll" data-liquid-glass data-liquid-glass-hot>
+            <h3 class="card-title wish-form-title">
               ✍️ Viết Lời Chúc Của Bạn
             </h3>
 
@@ -600,26 +389,17 @@
                 <input type="text" id="guestName" class="form-input" placeholder="Ví dụ: Nguyễn Văn A" required>
               </div>
 
-              <div class="form-group">
-                <label class="form-label" for="guestRelation">Mối quan hệ với Tuấn Hùng</label>
-                <select id="guestRelation" class="form-select">
-                  <option value="Bạn bè / Đồng môn">Bạn bè / Đồng môn K65</option>
-                  <option value="Thầy cô">Thầy cô / Giảng viên</option>
-                  <option value="Gia đình">Gia đình / Người thân</option>
-                  <option value="Đồng nghiệp">Đồng nghiệp / Đối tác</option>
-                  <option value="Khác">Khác</option>
-                </select>
-              </div>
+
 
               <div class="form-group">
                 <label class="form-label">Chọn biểu tượng cảm xúc</label>
                 <div class="emoji-selector">
-                  <button type="button" class="emoji-pill selected" data-emoji="🎓">🎓 Mũ Cử Nhân</button>
-                  <button type="button" class="emoji-pill" data-emoji="💐">💐 Bó Hoa</button>
-                  <button type="button" class="emoji-pill" data-emoji="🎉">🎉 Pháo Giấy</button>
-                  <button type="button" class="emoji-pill" data-emoji="🚀">🚀 Thăng Tiến</button>
-                  <button type="button" class="emoji-pill" data-emoji="🌟">🌟 Tỏa Sáng</button>
-                  <button type="button" class="emoji-pill" data-emoji="💖">💖 Yêu Thương</button>
+                  <button type="button" class="emoji-pill selected" data-emoji="🎓" aria-pressed="true">🎓 Mũ Cử Nhân</button>
+                  <button type="button" class="emoji-pill" data-emoji="💐" aria-pressed="false">💐 Bó Hoa</button>
+                  <button type="button" class="emoji-pill" data-emoji="🎉" aria-pressed="false">🎉 Pháo Giấy</button>
+                  <button type="button" class="emoji-pill" data-emoji="🚀" aria-pressed="false">🚀 Thăng Tiến</button>
+                  <button type="button" class="emoji-pill" data-emoji="🌟" aria-pressed="false">🌟 Tỏa Sáng</button>
+                  <button type="button" class="emoji-pill" data-emoji="💖" aria-pressed="false">💖 Yêu Thương</button>
                 </div>
               </div>
 
@@ -628,25 +408,16 @@
                 <textarea id="guestMessage" class="form-textarea" placeholder="Nhập lời chúc mừng tốt nghiệp chân thành của bạn tại đây..." required></textarea>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem;">
+              <button type="submit" class="btn btn-primary full-width-btn submit-wish-btn">
                 <span>💌</span> Gửi Lời Chúc Ngay
               </button>
             </form>
           </div>
 
           <!-- Right: Wishes Wall (Stored in LocalStorage) -->
-          <div class="wishes-wall-container reveal-on-scroll delay-100">
+          <div class="glass-card wish-wall-frame wishes-wall-container reveal-on-scroll delay-100">
             <div class="wishes-header-bar">
               <div class="wishes-count" id="wishesCount">0 Lời chúc</div>
-              <div>
-                <select id="wishesFilter" class="wishes-filter-select">
-                  <option value="all">Tất cả lời chúc</option>
-                  <option value="Thầy cô">Thầy cô</option>
-                  <option value="Gia đình">Gia đình</option>
-                  <option value="Bạn bè / Đồng môn">Bạn bè / Đồng môn</option>
-                  <option value="Đồng nghiệp">Đồng nghiệp</option>
-                </select>
-              </div>
             </div>
 
             <div class="wishes-scroll-box" id="wishesList">
@@ -675,19 +446,12 @@
   <!-- =========================================================================
        10. MOBILE QUICK DOCK NAVIGATION
        ========================================================================= -->
-  <nav class="mobile-dock">
+  <nav class="mobile-dock" data-liquid-glass>
     <a href="#hero" class="dock-item active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
       </svg>
       <span>Thiệp</span>
-    </a>
-    <a href="#profile" class="dock-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-      <span>Thông Tin</span>
     </a>
     <a href="#schedule" class="dock-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -695,14 +459,6 @@
         <polyline points="12 6 12 12 16 14"></polyline>
       </svg>
       <span>Lịch Trình</span>
-    </a>
-    <a href="#gallery" class="dock-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-        <polyline points="21 15 16 10 5 21"></polyline>
-      </svg>
-      <span>Kỷ Yếu</span>
     </a>
     <a href="#guestbook" class="dock-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -716,31 +472,25 @@
        11. FOOTER
        ========================================================================= -->
   <footer class="site-footer">
-    <div class="container">
       <div class="footer-content">
-        <div class="footer-logo-box">
-          <div class="hust-emblem-badge" style="width: 44px; height: 44px; font-size: 0.95rem;">BK</div>
-          <div class="footer-text-hust">ĐẠI HỌC BÁCH KHOA HÀ NỘI</div>
-        </div>
-
-        <p class="footer-quote">
-          "Trường Đại học Bách Khoa Hà Nội — Nơi ươm mầm tài năng, rèn luyện bản lĩnh và chắp cánh ước mơ vươn tầm thế giới."
-        </p>
-
-        <div class="footer-divider"></div>
-
         <div class="footer-copyright">
-          © 2026 Hà Hoàng Tuấn Hùng • Khóa K65 Trường Công nghệ Thông tin & Truyền thông (SoICT - HUST)
+          © 2026 • Hà Hoàng Tuấn Hùng
         </div>
       </div>
-    </div>
   </footer>
 
   <!-- JavaScript Scripts -->
-  <script src="assets/js/countdown.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="assets/js/liquid-glass-component.js?v=4"></script>
+  <script src="assets/js/countdown.js?v=2"></script>
   <script src="assets/js/audio.js"></script>
-  <script type="module" src="assets/js/guestbook.js?v=6"></script>
+  <!-- Firebase Compat for universal support (works on file:/// and web servers) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/guestbook.js?v=12"></script>
   <script src="assets/js/gallery.js"></script>
+  <script src="assets/js/cursor-glass.js?v=2"></script>
   <script src="assets/js/app.js"></script>
+
 </body>
 </html>

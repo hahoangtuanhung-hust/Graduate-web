@@ -5,6 +5,33 @@
 (function () {
   'use strict';
 
+  // Keep the theme choice between visits and let the glass renderer follow it.
+  const themeToggle = document.getElementById('themeToggle');
+  const savedTheme = (() => {
+    try { return localStorage.getItem('hust-theme'); } catch { return null; }
+  })();
+
+  function applyTheme(theme) {
+    const nextTheme = theme === 'light' ? 'light' : 'dark';
+    document.body.dataset.theme = nextTheme;
+    const nextLabel = nextTheme === 'light' ? 'Chuyển sang giao diện tối' : 'Chuyển sang giao diện sáng';
+    if (themeToggle) {
+      themeToggle.title = nextLabel;
+      themeToggle.setAttribute('aria-label', nextLabel);
+      themeToggle.setAttribute('aria-pressed', String(nextTheme === 'light'));
+    }
+    if (window.LiquidGlassComponent) window.LiquidGlassComponent.setTheme(nextTheme);
+  }
+
+  applyTheme(savedTheme || 'dark');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.dataset.theme === 'light' ? 'dark' : 'light';
+      applyTheme(nextTheme);
+      try { localStorage.setItem('hust-theme', nextTheme); } catch { /* private browsing */ }
+    });
+  }
+
   // -------------------------------------------------------------------------
   // 1. ENVELOPE OPENING & CONFETTI
   // -------------------------------------------------------------------------
@@ -62,7 +89,7 @@
     canvas.height = window.innerHeight;
   }
 
-  const confettiColors = ['#D4AF37', '#1D4ED8', '#0D9488', '#F59E0B', '#EF4444', '#64DFDF', '#FDE68A'];
+  const confettiColors = ['#F2C14E', '#2A7281', '#159D8E', '#E9A21A', '#B4232F', '#6BD4C6', '#FFE4A3'];
 
   function createConfettiParticles(count = 120) {
     const particlesArr = [];
@@ -115,6 +142,7 @@
 
   window.triggerConfetti = function () {
     if (!canvas || !ctx) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     particles = particles.concat(createConfettiParticles(100));
     if (!animId || particles.length <= 100) {
       updateConfetti();
@@ -140,14 +168,23 @@
   revealElements.forEach(el => revealObserver.observe(el));
 
   // -------------------------------------------------------------------------
-  // 4. NAVBAR & DOCK ACTIVE HIGHLIGHT
+  // 4. NAVBAR & DOCK ACTIVE HIGHLIGHT & SCROLL STATE
   // -------------------------------------------------------------------------
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-link');
   const dockItems = document.querySelectorAll('.dock-item');
+  const siteNav = document.querySelector('.site-nav');
 
-  function highlightNavigation() {
+  function handleScroll() {
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (siteNav) {
+      if (scrollY > 24) {
+        siteNav.classList.add('scrolled');
+      } else {
+        siteNav.classList.remove('scrolled');
+      }
+    }
 
     sections.forEach(sec => {
       const secHeight = sec.offsetHeight;
@@ -174,5 +211,6 @@
     });
   }
 
-  window.addEventListener('scroll', highlightNavigation, { passive: true });
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
 })();
