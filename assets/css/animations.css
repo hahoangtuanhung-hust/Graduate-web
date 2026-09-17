@@ -36,11 +36,11 @@
   }
 }
 
-/* Scroll reveal utility */
+/* Scroll Reveal Utility - Ultra Smooth & Gentle Fade In */
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transform: translateY(36px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -49,11 +49,11 @@
   transform: translateY(0);
 }
 
-/* Stagger delay classes */
-.delay-100 { transition-delay: 0.1s; }
-.delay-200 { transition-delay: 0.2s; }
-.delay-300 { transition-delay: 0.3s; }
-.delay-400 { transition-delay: 0.4s; }
+/* Stagger delay classes for cascading reveal */
+.delay-100 { transition-delay: 0.12s; }
+.delay-200 { transition-delay: 0.22s; }
+.delay-300 { transition-delay: 0.32s; }
+.delay-400 { transition-delay: 0.42s; }
 
 /* Pulse Glow Effect for buttons & important badges */
 @keyframes pulseGlow {
