@@ -144,12 +144,14 @@ body[data-theme="dark"] {
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
+  overscroll-behavior-y: none;
   font-size: 16px;
 }
 
 body {
   min-height: 100vh;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   background-color: var(--surface-canvas);
   background-image: var(--page-gradient);
   background-position: center;
@@ -161,6 +163,12 @@ body {
   line-height: 1.65;
   text-rendering: optimizeLegibility;
   transition: background-color var(--transition-slow), color var(--transition-normal);
+}
+
+@media (hover: none), (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 
@@ -247,7 +255,11 @@ img { display: block; max-width: 100%; height: auto; }
 .liquid-glass-fallback .glass-card,
 .liquid-glass-fallback .mobile-dock,
 .liquid-glass-fallback .graduate-card,
-.liquid-glass-fallback .wish-card {
+.liquid-glass-fallback .wish-card,
+.liquid-glass-attached .glass-card,
+.liquid-glass-attached .mobile-dock,
+.liquid-glass-attached .graduate-card,
+.liquid-glass-attached .wish-card {
   background: var(--surface-elevated);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -260,7 +272,8 @@ img { display: block; max-width: 100%; height: auto; }
   -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
-.liquid-glass-fallback #glassCanvas { display: none; }
+.liquid-glass-fallback #glassCanvas,
+.liquid-glass-attached #glassCanvas { display: none; }
 
 /* Cursor hidden only when JS confirms a fine-pointer device via class */
 html.has-cursor-glass,
@@ -383,7 +396,12 @@ html.has-cursor-glass [contenteditable="true"] {
 .glass-card:hover {
   border-color: var(--color-border-strong);
   box-shadow: var(--glass-shadow-lg);
-  transform: translateY(-3px) translateZ(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    transform: translateY(-3px) translateZ(0);
+  }
 }
 
 .section {
@@ -437,8 +455,11 @@ html.has-cursor-glass [contenteditable="true"] {
   transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
 
-.btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-2px); }
+}
 
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary-700), var(--color-secondary-600));
