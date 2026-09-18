@@ -70,10 +70,18 @@
   // Clean up legacy test wishes from previous session if any
   try {
     const raw = localStorage.getItem(LS_LOCAL_WISHES);
-    if (raw && (raw.includes('Agent Test') || raw.includes('sample-1'))) {
+    if (raw && (raw.includes('Agent Test') || raw.includes('sample-1') || raw.includes('aaa') || raw.includes('Chuc mung tot nghiep'))) {
       localStorage.removeItem(LS_LOCAL_WISHES);
     }
   } catch {}
+
+  // Tiện ích hỗ trợ người dùng xóa cache local nhanh từ Console F12
+  window.clearGuestbookCache = function () {
+    localStorage.removeItem(LS_LOCAL_WISHES);
+    localStorage.removeItem(LS_REACTIONS_KEY);
+    console.log("✅ Đã xóa sạch cache lời chúc trên máy này. Đang tải lại trang...");
+    window.location.reload();
+  };
 
   function getLocalWishes() {
     try {
@@ -368,6 +376,13 @@
         },
         (error) => {
           console.warn("Firestore onSnapshot error, using local wishes:", error);
+          if (error && (error.code === 'permission-denied' || (error.message && error.message.includes('permission')))) {
+            console.error(
+              "⚠️ [Firebase Firestore] Quyền truy cập bị từ chối (Permission Denied)!\n" +
+              "👉 Nguyên nhân: Tab Rules trên Firebase Console chưa cho phép đọc/ghi.\n" +
+              "👉 Cách khắc phục: Vào Firebase Console -> Firestore Database -> tab Rules -> đổi thành 'allow read, write: if true;' và bấm Publish."
+            );
+          }
           currentWishes = getLocalWishes();
           renderWishes();
         }
