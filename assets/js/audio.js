@@ -1,17 +1,87 @@
 /**
- * HUST Graduation Invitation - Ambient Background Music (Web Audio Synthesizer & Audio Player)
+ * HUST Graduation Invitation - Background Music Player & Ambient Synthesizer
  */
 
 (function () {
   'use strict';
 
+  // =========================================================================
+  // 1. CẤU HÌNH NHẠC NỀN (Tùy chỉnh tại đây)
+  // =========================================================================
+  const AUDIO_CONFIG = {
+    // Đường dẫn tới file nhạc nền (bạn copy file mp3 vào thư mục assets/audio/music.mp3)
+    // Hoặc bạn có thể dán link nhạc online dạng: 'https://example.com/bai-hat.mp3'
+    src: 'assets/audio/music.mp3?v=2',
+
+    // Âm lượng mặc định: từ 0.0 (tắt) đến 1.0 (100%). Khuyên dùng 0.5 - 0.7
+    volume: 0.6,
+
+    // Tự động lặp lại bài hát khi phát hết
+    loop: true,
+
+    // Nếu chưa có file MP3, tự động phát giai điệu chuông Ambient thay thế để không bị im lặng
+    fallbackToSynth: true
+  };
+
   let isPlaying = false;
+  let audioPlayer = null;
+  let useSynthFallback = false;
   let audioCtx = null;
   let melodyInterval = null;
 
   const audioToggleBtn = document.getElementById('audioToggle');
 
-  // Gentle Graduation Melodic Chords & Notes (Pentatonic ambient progression in C Major / G Major)
+  // =========================================================================
+  // 2. KHỞI TẠO HTML5 AUDIO PLAYER (Hỗ trợ file MP3 / M4A / Online)
+  // =========================================================================
+  function initAudioPlayer() {
+    if (audioPlayer) return audioPlayer;
+
+    try {
+      audioPlayer = new Audio();
+      audioPlayer.src = AUDIO_CONFIG.src;
+      audioPlayer.loop = AUDIO_CONFIG.loop;
+      audioPlayer.volume = AUDIO_CONFIG.volume;
+      audioPlayer.preload = 'auto';
+
+      audioPlayer.addEventListener('play', () => {
+        isPlaying = true;
+        updateAudioBtnUI();
+      });
+
+      audioPlayer.addEventListener('pause', () => {
+        if (!useSynthFallback) {
+          isPlaying = false;
+          updateAudioBtnUI();
+        }
+      });
+
+      audioPlayer.addEventListener('ended', () => {
+        if (!AUDIO_CONFIG.loop) {
+          isPlaying = false;
+          updateAudioBtnUI();
+        }
+      });
+
+      // Nếu file nhạc bị lỗi (ví dụ chưa copy file vào hoặc đường dẫn sai)
+      audioPlayer.addEventListener('error', (e) => {
+        console.info('Chưa tìm thấy file nhạc MP3 (' + AUDIO_CONFIG.src + '), chuyển sang chế độ Ambient Melody.');
+        useSynthFallback = true;
+        if (isPlaying && AUDIO_CONFIG.fallbackToSynth) {
+          startAmbientMelody();
+        }
+      });
+    } catch (err) {
+      console.warn('Lỗi khởi tạo Audio:', err);
+      useSynthFallback = true;
+    }
+
+    return audioPlayer;
+  }
+
+  // =========================================================================
+  // 3. CHẾ ĐỘ DỰ PHÒNG: WEB AUDIO SYNTHESIZER (Khi chưa có file MP3)
+  // =========================================================================
   const notes = [
     261.63, // C4
     293.66, // D4
@@ -76,20 +146,16 @@
       melodyInterval = null;
     }
 
-    // Play initial note right away
     playTone(notes[melodySequence[seqIndex % melodySequence.length]], 1.4, 0.08);
     seqIndex++;
 
-    // Play subtle chord progression
     melodyInterval = setInterval(() => {
       if (!isPlaying) return;
       const noteIdx = melodySequence[seqIndex % melodySequence.length];
       const freq = notes[noteIdx % notes.length];
       
-      // Play main melody note
       playTone(freq, 1.4, 0.07);
       
-      // Occasionally play soft harmonic bass
       if (seqIndex % 4 === 0) {
         playTone(notes[0] / 2, 2.5, 0.04);
       }
@@ -99,19 +165,51 @@
   }
 
   function stopAmbientMelody() {
-    isPlaying = false;
     if (melodyInterval) {
       clearInterval(melodyInterval);
       melodyInterval = null;
     }
+  }
+
+  // =========================================================================
+  // 4. CÁC HÀM ĐIỀU KHIỂN PHÁT / DỪNG NHẠC
+  // =========================================================================
+  function startMusic() {
+    initAudioPlayer();
+
+    if (useSynthFallback) {
+      startAmbientMelody();
+      return;
+    }
+
+    if (audioPlayer) {
+      audioPlayer.play().then(() => {
+        isPlaying = true;
+        updateAudioBtnUI();
+      }).catch((err) => {
+        console.info('Trình duyệt chưa cho phép autoplay hoặc file mp3 chưa sẵn sàng, thử phát Synth:', err);
+        if (AUDIO_CONFIG.fallbackToSynth) {
+          useSynthFallback = true;
+          startAmbientMelody();
+        }
+      });
+    }
+  }
+
+  function stopMusic() {
+    isPlaying = false;
+    if (audioPlayer && !audioPlayer.paused) {
+      audioPlayer.pause();
+    }
+    stopAmbientMelody();
     updateAudioBtnUI();
   }
 
-  function toggleAudio() {
+  function toggleMusic() {
     if (isPlaying) {
-      stopAmbientMelody();
+      stopMusic();
     } else {
-      startAmbientMelody();
+      startMusic();
     }
   }
 
@@ -129,10 +227,11 @@
   }
 
   if (audioToggleBtn) {
-    audioToggleBtn.addEventListener('click', toggleAudio);
+    audioToggleBtn.addEventListener('click', toggleMusic);
   }
 
-  // Export functions to global for envelope opener trigger
-  window.startBackgroundMusic = startAmbientMelody;
-  window.toggleBackgroundMusic = toggleAudio;
+  // Xuất các hàm ra global để kích hoạt khi mở phong bì thiệp mời
+  window.startBackgroundMusic = startMusic;
+  window.toggleBackgroundMusic = toggleMusic;
+  window.stopBackgroundMusic = stopMusic;
 })();

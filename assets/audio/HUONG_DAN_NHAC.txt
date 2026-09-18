@@ -1,0 +1,12 @@
+HƯỚNG DẪN THÊM NHẠC NỀN CHO WEBSITE:
+======================================
+1. Bạn hãy copy 1 file nhạc (định dạng .mp3 hoặc .m4a) vào chính thư mục này:
+   assets/audio/
+
+2. Đổi tên file thành:
+   music.mp3
+
+3. Khi mở web và bấm vào phong bì "Mở thiệp mời", bài hát này sẽ tự động phát!
+   Bạn cũng có thể bấm vào nút nốt nhạc góc trên bên phải để Bật / Tắt nhạc.
+
+(Lưu ý: Nếu bạn muốn đổi tên file hoặc dùng link nhạc online, bạn có thể chỉnh đường dẫn trong file assets/js/audio.js ở dòng: src: 'assets/audio/music.mp3')

@@ -89,6 +89,11 @@ body[data-theme="dark"] {
     transparent 70%,
     rgba(255, 255, 255, 0.08) 100%
   );
+  --navbar-glass-material:
+    var(--navbar-glass-rim),
+    var(--navbar-glass-refraction),
+    var(--navbar-glass-fill);
+  --navbar-glass-backdrop: blur(24px) saturate(180%) contrast(104%);
   --navbar-glass-border: rgba(255, 255, 255, 0.22);
   --navbar-glass-highlight: rgba(255, 255, 255, 0.55);
   --navbar-glass-shadow:
@@ -255,11 +260,7 @@ img { display: block; max-width: 100%; height: auto; }
 .liquid-glass-fallback .glass-card,
 .liquid-glass-fallback .mobile-dock,
 .liquid-glass-fallback .graduate-card,
-.liquid-glass-fallback .wish-card,
-.liquid-glass-attached .glass-card,
-.liquid-glass-attached .mobile-dock,
-.liquid-glass-attached .graduate-card,
-.liquid-glass-attached .wish-card {
+.liquid-glass-fallback .wish-card {
   background: var(--surface-elevated);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
